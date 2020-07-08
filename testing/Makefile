@@ -1,6 +1,7 @@
 # Makefile for testing
 
-TARGET = ./b_test
+TARGET =  -o./c_test
+CFLAGS = -ggdb
 
-all: b_testing.cxx
-	g++ -g -o $(TARGET) b_testing.cxx 
+all: c_testing.cxx
+	g++ $(CFLAGS) $(TARGET) c_testing.cxx 
