@@ -33,24 +33,21 @@
 const int W = 1;
 const int H = 1;
 
-//const int X = W+1;
-//const int Y = H+1;
-
-enum Status {avail, used, parent};
+enum Status {avail, visited, from};
 
 typedef struct Node Node;
 
 typedef struct {
-	int to_x, to_y;	// bounds checking
+	//int to_x, to_y;	// bounds checking
 	Node *next;		// pointer to next node
 	Status status;
 } Step;
 
-enum NodeStat { root, path_node, home };
+enum NodeType { root, path_node, goal };
 
 typedef struct Node {
 	std::vector<Step> steps;
-	NodeStat nodestat;
+	NodeType type;
 } Node;
 
 typedef std::array< std::array<Node,W+1>, H+1> Lattice;
@@ -69,40 +66,39 @@ void initalise_lattice(Lattice &l){
 	for(auto x = 0; x <= W; ++x) {
 		for(auto y = 0; y <= H; ++y) {
 			Node &n = l[x][y];
+			
 			// initialise the vector of Step for this node
-			// x & y are node co-ords
 			n.steps.clear();
-			// consider 4 * 1,2,3 orthogonal steps
 			for(int ds = 1; ds <= 3; ++ds) {				
-				s.to_x = x;	s.to_y = y+ds;
-				if(s.to_y <= H) {
+				//s.to_x = x;	s.to_y = y+ds;
+				if(y+ds <= H) {
 					s.next = &(l[x][y+ds]);		
 					s.status = avail;
-					n.nodestat = path_node;
+					n.type = path_node;
 					n.steps.push_back(s); // N 1
 				}
 					
-				s.to_x = x+ds;	s.to_y = y;
-				if(s.to_x <= W) {
+				//s.to_x = x+ds;	s.to_y = y;
+				if(x+ds <= W) {
 					s.next = &(l[x+ds][y]);		
 					s.status = avail; 
-					n.nodestat = path_node;
+					n.type = path_node;
 					n.steps.push_back(s); // E 1
 				}
 											
-				s.to_x = x;	s.to_y = y-ds;
-				if(s.to_y >= 0) {
+				//s.to_x = x;	s.to_y = y-ds;
+				if(y-ds >= 0) {
 					s.next = &(l[x][y-ds]);		
 					s.status = avail; 
-					n.nodestat = path_node;
+					n.type = path_node;
 					n.steps.push_back(s); // S 1
 				}
 				
-				s.to_x = x-ds;	s.to_y = y;
-				if(s.to_x >= 0) {
+				//s.to_x = x-ds;	s.to_y = y;
+				if(x-ds >= 0) {
 					s.next = &(l[x-ds][y]);		
 					s.status = avail; 
-					n.nodestat = path_node;
+					n.type = path_node;
 					n.steps.push_back(s); // W 1
 				}
 			} // for ds...
@@ -110,85 +106,103 @@ void initalise_lattice(Lattice &l){
 			// now consider possible diagonal steps
 			int dx = 4; int dy = 3;
 			
-			s.to_x = x+dx;	s.to_y = y+dy;
-			if((s.to_x <= W)and(s.to_y <= H)) {
+			//s.to_x = x+dx;	s.to_y = y+dy;
+			if((x+dx <= W)and(y+dy <= H)) {
 				s.next = &(l[x+dx][y+dy]);		
 				s.status = avail;
-				n.nodestat = path_node;
+				n.type = path_node;
 				n.steps.push_back(s); // NE QUADRANT 5
 			}
-			s.to_x = x+dy;	s.to_y = y+dx;	// note meaning of dx & dx exchanged
-			if((s.to_x <= W)and(s.to_y <= H)) {
-				s.next = &(l[x+dx][y+dy]);		
-				s.status = avail;
-				n.nodestat = path_node;
-				n.steps.push_back(s); // NE QUADRANT 5
-			}
-			
-			s.to_x = x+dx;	s.to_y = y-dy;
-			if((s.to_x <= W)and(s.to_y >= 0)) {
-				s.next = &(l[x+dx][y-dy]);		
-				s.status = avail;
-				n.nodestat = path_node;
-				n.steps.push_back(s); // SE QUADRANT 5
-			}
-			s.to_x = x+dy;	s.to_y = y-dx;	// note meaning of dx & dx exchanged
-			if((s.to_x <= W)and(s.to_y >= 0)) {
+			//s.to_x = x+dy;	s.to_y = y+dx;	// Note: position of dx and dy exchanged
+			if((x+dy <= W)and(y+dx <= H)) {
 				s.next = &(l[x+dy][y+dx]);		
 				s.status = avail;
-				n.nodestat = path_node;
+				n.type = path_node;
+				n.steps.push_back(s); // NE QUADRANT 5
+			}
+			
+			//s.to_x = x+dx;	s.to_y = y-dy;
+			if((x+dx <= W)and(y-dy >= 0)) {
+				s.next = &(l[x+dx][y-dy]);		
+				s.status = avail;
+				n.type = path_node;
+				n.steps.push_back(s); // SE QUADRANT 5
+			}
+			//s.to_x = x+dy;	s.to_y = y-dx;	// Note: position of dx and dy exchanged
+			if((x+dy <= W)and(y-dx >= 0)) {
+				s.next = &(l[x+dy][y-dx]);		
+				s.status = avail;
+				n.type = path_node;
 				n.steps.push_back(s); // SE QUADRANT 5
 			}
 			
-			s.to_x = x-dx;	s.to_y = y-dy;
-			if((0 <= s.to_x)and(0 <= s.to_y)) {
+			//s.to_x = x-dx;	s.to_y = y-dy;
+			if((0 <= x-dx)and(0 <= y-dy)) {
 				s.next = &(l[x-dx][y-dy]);		
 				s.status = avail;
-				n.nodestat = path_node;
+				n.type = path_node;
 				n.steps.push_back(s); // SW QUADRANT 5
 			}
-			s.to_x = x-dy;	s.to_y = y-dx;	// note meaning of dx & dx exchanged
-			if((0 <= s.to_x)and(0 <= s.to_y)) {
+			//s.to_x = x-dy;	s.to_y = y-dx;	// Note: position of dx and dy exchanged
+			if((0 <= x-dy)and(0 <= y-dx)) {
 				s.next = &(l[x-dy][y-dx]);		
 				s.status = avail;
-				n.nodestat = path_node;
+				n.type = path_node;
 				n.steps.push_back(s); // SW QUADRANT 5
 			}
 			
-			s.to_x = x-dx;	s.to_y = y+dy;
-			if((0 <= s.to_x)and(s.to_y <= H)) {
+			//s.to_x = x-dx;	s.to_y = y+dy;
+			if((0 <= x-dx)and(y+dy <= H)) {
 				s.next = &(l[x-dx][y+dy]);		
 				s.status = avail;
-				n.nodestat = path_node;
+				n.type = path_node;
 				n.steps.push_back(s); // NE QUADRANT 5
 			}
-			s.to_x = x-dy;	s.to_y = y+dx;	// note meaning of dx & dx exchanged
-			if((0 <= s.to_x)and(s.to_y <= H)) {
-				s.next = &(l[x-dy][y-dx]);		
+			//s.to_x = x-dy;	s.to_y = y+dx;	// Note: position of dx and dy exchanged
+			if((0 <= x-dy)and(y+dx <= H)) {
+				s.next = &(l[x-dy][y+dx]);		
 				s.status = avail;
-				n.nodestat = path_node;
+				n.type = path_node;
 				n.steps.push_back(s); // NE QUADRANT 5
 			}						
 		} // for y...
 	} // for x...
 	// adjust the node status for root & home
-	l[0][0].nodestat = root;
-	l[W][H].nodestat = home;	
+	l[0][0].type = root;
+	l[W][H].type = goal;	
 }
 //-------------------------------------------------
-
 bool explore(Node *n, int &count);
-
 bool explore(Node *n, int &count) {
-	if(n->nodestat == home) {
+	if(n->type == goal) {
 		count += 1;
 		return true;
 	}
 	for(auto c = n->steps.begin(); c != n->steps.end(); ++c) {
-		if ((*c).status == used) continue;
+		if ((*c).status == visited) continue;
 		if(explore((*c).next, count)) return true;
 	}
 	for(auto c = n->steps.begin(); c != n->steps.end(); ++c) (*c).status = avail;
+	return false;
+}
+
+//------------------------------------------------------
+bool solve(Node *n, int &count, Node *from);
+
+bool solve(Node *n, int &count, Node *from) {
+	if(n->type == goal) {
+		count += 1;
+		return true;
+	} // if...
+	for(auto option = n->steps.begin(); option != n->steps.end(); ++option) {
+		if(((*option).status == avail)and((*option).next != from)) {
+			(*option).status = visited;
+			if( solve((*option).next, count, n) == true) return true;
+		} // if...
+	} // for...
+	// All option used, clear status to avail
+	for(auto option = n->steps.begin(); option != n->steps.end(); ++option) (*option).status = avail;		
+	// backtrack up stack
 	return false;
 }
 //----------------------------------------------------------------------
@@ -196,11 +210,12 @@ bool explore(Node *n, int &count) {
 int main(int argc, char **argv)
 {
 	Lattice l;
+	Node *from = NULL;
 	
 	//Initialise all Lattice values
 	initalise_lattice(l);
 	int path_count = 0;
-	bool result = explore(&(l[0][0]), path_count);
+	bool result = solve(&(l[0][0]), path_count, from);
 	std::cout << "Explore root returned. Path count = " << path_count << std::endl;
 }
 
