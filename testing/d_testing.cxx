@@ -66,9 +66,9 @@ void initalise_lattice(Lattice &l){
 			n.idx = idx++;	// debug idx
 			n.status = avail;	// {avail, on_path, goal}
 			node_stat(&n);
-			for(int ds = 1; ds <= 3; ++ds) {				
+			for(int ds = 1; ds <= 3; ++ds) {
+								
 				if(y+ds <= H) {
-					//s.next = &(l[x][y+ds]);		
 					n.steps.push_back(&(l[x][y+ds])); // N 1
 					std::cout << x << "," << y << " => " << x << "," << y+ds << std::endl;
 				}
@@ -88,7 +88,7 @@ void initalise_lattice(Lattice &l){
 					std::cout << x << "," << y << " => " << x-ds << "," << y << std::endl;
 				}
 			} // for ds...
-			
+#if(0)			
 			// now consider 8 possible diagonal steps
 			int dx = 4; int dy = 3;	// DEBUG SET ONLY
 			
@@ -127,6 +127,7 @@ void initalise_lattice(Lattice &l){
 				n.steps.push_back(&(l[x-dy][y+dx])); // NE QUADRANT 5
 					std::cout << x << "," << y << " => " << x-dy << "," << y+dx << std::endl;
 			}
+#endif
 		} // for y...
 	} // for x...
 	
@@ -153,6 +154,7 @@ void voidsolve(Node *n, int &count, std::vector<int> &path) {
 			count += 1;
 			prt_path((*option), path);
 		} // include a debug print
+		
 		if((*option)->status == avail)
 			// step to next node
 			voidsolve( *option, count, path);		
