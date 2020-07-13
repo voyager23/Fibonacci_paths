@@ -150,7 +150,18 @@ void initalise_lattice(Lattice &l){
 	
 	// adjust the node status for root & home
 	l[0][0].status = on_path;
-	l[H][W].status = goal;	
+	l[H][W].status = goal;
+#if(1)		
+	// Testing for symmetry using F(2,2) = 14
+	
+	l[2][1].status = goal; // node 5
+	l[1][2].status = goal; // node 7
+	l[2][2].status = on_path; // node 8
+	
+	l[0][2].status = goal; // node 2
+	l[1][1].status = goal; // node 4
+	l[2][0].status = goal; // node 6
+#endif	
 }
 //----------------------------------------------------------------------
 
