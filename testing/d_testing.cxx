@@ -27,8 +27,8 @@
 #include <utility>
 #include <iomanip>
 
-const int W = 3;
-const int H = 4;
+const int W = 2;
+const int H = 2;
 
 //typedef struct Node Node;
 
