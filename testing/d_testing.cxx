@@ -27,8 +27,8 @@
 #include <utility>
 #include <iomanip>
 
-const int W = 1;
-const int H = 2;
+const int W = 3;
+const int H = 4;
 
 //typedef struct Node Node;
 
@@ -57,10 +57,13 @@ void initalise_lattice(Lattice &l){
 	 * N 1,2,3    E 1,2,3    S 1,2,3    E 1,2,3
 	 * NE 5,8     SE 5,8     SW 5,8     NE 5,8
 	 * 0 <= w+ds <= W    0 <= h+ds <= H
+	 * 
+	 * 13/07/20 ASSUME ONLY N, E, NE steps are allowed
 	 */
  	int idx = 0;
 	for(auto h = 0; h <= H; ++h) {
 		for(auto w = 0; w <= W; ++w) {
+			//std::cout<<std::endl;
 			//std::cout<<std::endl;
 			Node *n = &l[h][w];	
 					
@@ -81,7 +84,8 @@ void initalise_lattice(Lattice &l){
 					n->steps.push_back(&(l[h][w+ds])); // E 1 2 3
 					//std::cout << w << "," << h << " => " << w+ds << "," << h << std::endl;
 				}
-											
+// only allow steps N & E
+#if(0)										
 				if(h-ds >= 0) {
 					n->steps.push_back(&(l[h-ds][w])); // S 1 2 3
 					//std::cout << w << "," << h << " => " << w << "," << h-ds << std::endl;
@@ -91,10 +95,11 @@ void initalise_lattice(Lattice &l){
 					n->steps.push_back(&(l[h][w-ds])); // W 1 2 3
 					//std::cout << w << "," << h << " => " << w-ds << "," << h << std::endl;
 				}
+#endif
 			} // for ds = 1->3
 			
 //......................................................................			
-#if(1)			
+			
 			// now consider 8 possible diagonal steps
 			int dw = 4; int dh = 3;	// DEBUG SET ONLY
 			
@@ -106,7 +111,9 @@ void initalise_lattice(Lattice &l){
 				n->steps.push_back(&(l[h+dw][w+dh])); // NE QUADRANT 5
 					//std::cout << w << "," << h << " => " << w+dh << "," << h+dw << std::endl;
 			}
-			
+// only allow  steps NE
+#if(0)
+		
 			if((w+dw <= W)and(h-dh >= 0)) {
 				n->steps.push_back(&(l[h-dh][w+dw])); // SE QUADRANT 5
 					//std::cout << w << "," << h << " => " << w+dw << "," << h-dh << std::endl;
