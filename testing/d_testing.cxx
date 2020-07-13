@@ -62,7 +62,7 @@ void initalise_lattice(Lattice &l){
 	for(auto h = 0; h <= H; ++h) {
 		for(auto w = 0; w <= W; ++w) {
 			std::cout<<std::endl;
-			Node *n = &l[w][h];	
+			Node *n = &l[h][w];	
 					
 			// initialise the vector of Step for this node
 			n->steps.clear();
@@ -70,7 +70,7 @@ void initalise_lattice(Lattice &l){
 			n->status = avail;	// {avail, on_path, goal}
 			std::cout << "Node: " << n->idx << " h" << h << " w" << w << std::endl;
 			
-			for(int ds = 100000; ds <= 3; ++ds) {
+			for(int ds = 1; ds <= 3; ++ds) {
 								
 				if(h+ds <= H) {
 					n->steps.push_back(&(l[w][h+ds])); // N 1 2 3
@@ -143,7 +143,7 @@ void initalise_lattice(Lattice &l){
 	
 	// adjust the node status for root & home
 	l[0][0].status = on_path;
-	l[W][H].status = goal;	
+	l[H][W].status = goal;	
 }
 //----------------------------------------------------------------------
 
