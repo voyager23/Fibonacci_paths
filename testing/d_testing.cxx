@@ -61,77 +61,77 @@ void initalise_lattice(Lattice &l){
  	int idx = 0;
 	for(auto h = 0; h <= H; ++h) {
 		for(auto w = 0; w <= W; ++w) {
-			std::cout<<std::endl;
+			//std::cout<<std::endl;
 			Node *n = &l[h][w];	
 					
 			// initialise the vector of Step for this node
 			n->steps.clear();
 			n->idx = idx;	// node-idx
 			n->status = avail;	// {avail, on_path, goal}
-			std::cout << "Node: " << n->idx << " h" << h << " w" << w << std::endl;
+			//std::cout << "Node: " << n->idx << " h" << h << " w" << w << std::endl;
 			
 			for(int ds = 1; ds <= 3; ++ds) {
 								
 				if(h+ds <= H) {
-					n->steps.push_back(&(l[w][h+ds])); // N 1 2 3
-					std::cout << w << "," << h << " => " << w << "," << h+ds << std::endl;
+					n->steps.push_back(&(l[h+ds][w])); // N 1 2 3
+					//std::cout << w << "," << h << " => " << w << "," << h+ds << std::endl;
 				}
 					
 				if(w+ds <= W) {
-					n->steps.push_back(&(l[w+ds][h])); // E 1 2 3
-					std::cout << w << "," << h << " => " << w+ds << "," << h << std::endl;
+					n->steps.push_back(&(l[h][w+ds])); // E 1 2 3
+					//std::cout << w << "," << h << " => " << w+ds << "," << h << std::endl;
 				}
 											
 				if(h-ds >= 0) {
-					n->steps.push_back(&(l[w][h-ds])); // S 1 2 3
-					std::cout << w << "," << h << " => " << w << "," << h-ds << std::endl;
+					n->steps.push_back(&(l[h-ds][w])); // S 1 2 3
+					//std::cout << w << "," << h << " => " << w << "," << h-ds << std::endl;
 				}
 				
 				if(w-ds >= 0) {
-					n->steps.push_back(&(l[w-ds][h])); // W 1 2 3
-					std::cout << w << "," << h << " => " << w-ds << "," << h << std::endl;
+					n->steps.push_back(&(l[h][w-ds])); // W 1 2 3
+					//std::cout << w << "," << h << " => " << w-ds << "," << h << std::endl;
 				}
 			} // for ds = 1->3
 			
 //......................................................................			
-#if(0)			
+#if(1)			
 			// now consider 8 possible diagonal steps
 			int dw = 4; int dh = 3;	// DEBUG SET ONLY
 			
 			if((w+dw <= W)and(h+dh <= H)) {
-				n->steps.push_back(&(l[w+dw][h+dh])); // NE QUADRANT 5
-					std::cout << w << "," << h << " => " << w+dw << "," << h+dh << std::endl;
+				n->steps.push_back(&(l[h+dh][w+dw])); // NE QUADRANT 5
+					//std::cout << w << "," << h << " => " << w+dw << "," << h+dh << std::endl;
 			}
 			if((w+dh <= W)and(h+dw <= H)) {
-				n->steps.push_back(&(l[w+dh][h+dw])); // NE QUADRANT 5
-					std::cout << w << "," << h << " => " << w+dh << "," << h+dw << std::endl;
+				n->steps.push_back(&(l[h+dw][w+dh])); // NE QUADRANT 5
+					//std::cout << w << "," << h << " => " << w+dh << "," << h+dw << std::endl;
 			}
 			
 			if((w+dw <= W)and(h-dh >= 0)) {
-				n->steps.push_back(&(l[w+dw][h-dh])); // SE QUADRANT 5
-					std::cout << w << "," << h << " => " << w+dw << "," << h-dh << std::endl;
+				n->steps.push_back(&(l[h-dh][w+dw])); // SE QUADRANT 5
+					//std::cout << w << "," << h << " => " << w+dw << "," << h-dh << std::endl;
 			}
 			if((w+dh <= W)and(h-dw >= 0)) {
-				n->steps.push_back(&(l[w+dh][h-dw])); // SE QUADRANT 5
-					std::cout << w << "," << h << " => " << w+dh << "," << h-dw << std::endl;
+				n->steps.push_back(&(l[h-dw][w+dh])); // SE QUADRANT 5
+					//std::cout << w << "," << h << " => " << w+dh << "," << h-dw << std::endl;
 			}
 			
 			if((0 <= w-dw)and(0 <= h-dh)) {
-				n->steps.push_back(&(l[w-dw][h-dh])); // SW QUADRANT 5
-					std::cout << w << "," << h << " => " << w-dw << "," << h-dh << std::endl;
+				n->steps.push_back(&(l[h-dh][w-dw])); // SW QUADRANT 5
+					//std::cout << w << "," << h << " => " << w-dw << "," << h-dh << std::endl;
 			}
 			if((0 <= w-dh)and(0 <= h-dw)) {
-				n->steps.push_back(&(l[w-dh][h-dw])); // SW QUADRANT 5
-					std::cout << w << "," << h << " => " << w-dh << "," << h-dw << std::endl;
+				n->steps.push_back(&(l[h-dw][w-dh])); // SW QUADRANT 5
+					//std::cout << w << "," << h << " => " << w-dh << "," << h-dw << std::endl;
 			}
 			
 			if((0 <= w-dw)and(h+dh <= H)) {
-				n->steps.push_back(&(l[w-dw][h+dh])); // NE QUADRANT 5
-					std::cout << w << "," << h << " => " << w-dw << "," << h+dh << std::endl;
+				n->steps.push_back(&(l[h+dh][w-dw])); // NE QUADRANT 5
+					//std::cout << w << "," << h << " => " << w-dw << "," << h+dh << std::endl;
 			}
 			if((0 <= w-dh)and(h+dw <= H)) {
-				n->steps.push_back(&(l[w-dh][h+dw])); // NE QUADRANT 5
-					std::cout << w << "," << h << " => " << w-dh << "," << h+dw << std::endl;
+				n->steps.push_back(&(l[h+dw][w-dh])); // NE QUADRANT 5
+					//std::cout << w << "," << h << " => " << w-dh << "," << h+dw << std::endl;
 			}
 			
 #endif
@@ -160,10 +160,10 @@ void voidsolve(Node *n, int &count, std::vector<int> &path) {
 	n->status = on_path;
 	
 	// print node idx & options list
-	std::cout << "At node " << n->idx << " options: ";
-	for(auto option = n->steps.begin(); option != n->steps.end(); ++option) 
-		std::cout << (*option)->idx << " ";
-	std::cout << std::endl;
+	// std::cout << "At node " << n->idx << " options: ";
+	// for(auto option = n->steps.begin(); option != n->steps.end(); ++option) 
+		// std::cout << (*option)->idx << " ";
+	// std::cout << std::endl;
 	
 	for(auto option = n->steps.begin(); option != n->steps.end(); ++option) {
 		if((*option)->status == on_path) continue;
@@ -229,7 +229,7 @@ int main(int argc, char **argv)
 	
 	std::vector<int> current_path;
 	
-	prt_lattice(l);
+	// prt_lattice(l);
 	
 	voidsolve(root, count, current_path);
 		
