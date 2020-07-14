@@ -26,11 +26,22 @@
 #include <vector>
 #include <utility>
 #include <iomanip>
+#include <algorithm>
 
-const int W = 3;
-const int H = 1;
+#define SQ 2;
 
-//typedef struct Node Node;
+const int W = SQ;
+const int H = SQ;
+
+const int Max_Fibonacci=10001;
+
+#define MAX(x,y) ((x < y) ? y : x)
+
+typedef struct Fgroup {
+	int fib, a, b;
+}Fgroup;
+
+typedef std::vector<Fgroup> FGroups;
 
 enum Status {avail, on_path, goal}; // Node status
 
@@ -42,126 +53,123 @@ typedef struct Node {
 
 typedef Node Lattice[H+1][W+1];
 
-void initalise_lattice(Lattice &l);
+void initalise_lattice(Lattice &l, FGroups &fg);
 void node_stat(Node *n);
 void voidsolve(Node *n, int &count, std::vector<int> &path );
 void prt_path(Node *goal, std::vector<int> &path);
+void initialise_fgroups(FGroups &fg, const int limit);
 
 void prt_node(Lattice &l, int h, int w);
 void prt_lattice(Lattice &l);
 
-//-------------------------------------------------
+//----------------------------------------------------------------------
 
-void initalise_lattice(Lattice &l){
+void initialise_fgroups(FGroups &fg, const int limit) {
+	// setup first two entries
+	Fgroup temp{1,0,0};
+	fg.push_back(temp);
+	fg.push_back(temp);
+	int idx = 2;
+	// set remaining fibonacci numbers < Max_Fibonacci
+	do {
+		temp.fib = fg.at(idx-1).fib + fg.at(idx-2).fib;
+		temp.a = 0;
+		temp.b  = 0;
+		fg.push_back(temp);
+		idx += 1;
+	} while(temp.fib < Max_Fibonacci);
+	// Now setup the pythagorian triples starting at index 4 Fib=5
+	fg.at(4).a = 3;
+	fg.at(4).b = 4;
+	idx = 6;
+	while (idx < fg.size()) {
+		fg.at(idx).a = fg.at(idx-1).fib - fg.at(idx-2).a;
+		fg.at(idx).b = fg.at(idx-2).fib + fg.at(idx-2).a + fg.at(idx-2).b;
+		idx += 2;
+	}
+	
+	//std::cout << "FGroups has " << fg.size() << " groups." << std::endl;
+}
+//----------------------------------------------------------------------
+
+void initalise_lattice(Lattice &l, FGroups &fg){
 	/* Steps are defined as follows:
-	 * N 1,2,3    E 1,2,3    S 1,2,3    E 1,2,3
-	 * NE 5,8     SE 5,8     SW 5,8     NE 5,8
+	 * N 1,2,3    E 1,2,3 
+	 * NE 5,8 
 	 * 0 <= w+ds <= W    0 <= h+ds <= H
 	 * 
-	 * 13/07/20 ASSUME ONLY N, E, NE steps are allowed
+	 * ONLY N, E, NE steps are allowed
 	 */
- 	int idx = 0;
+ 	int idx = 0;	// node ident
 	for(auto h = 0; h <= H; ++h) {
 		for(auto w = 0; w <= W; ++w) {
+			
 			//std::cout<<std::endl;
 			//std::cout<<std::endl;
-			Node *n = &l[h][w];	
-					
+			Node *n = &l[h][w];						
 			// initialise the vector of Step for this node
 			n->steps.clear();
-			n->idx = idx;	// node-idx
+			n->idx = idx;		// node-idx
 			n->status = avail;	// {avail, on_path, goal}
 			//std::cout << "Node: " << n->idx << " h" << h << " w" << w << std::endl;
 			
-			for(int ds = 1; ds <= 3; ++ds) {
+			int ds_idx = 1;
+			int ds = fg.at(ds_idx).fib;
+			
+			while( (ds <= W) or (ds <= H)) {
 								
 				if(h+ds <= H) {
-					n->steps.push_back(&(l[h+ds][w])); // N 1 2 3
+					n->steps.push_back(&(l[h+ds][w])); // move N
 					//std::cout << w << "," << h << " => " << w << "," << h+ds << std::endl;
 				}
 					
 				if(w+ds <= W) {
-					n->steps.push_back(&(l[h][w+ds])); // E 1 2 3
+					n->steps.push_back(&(l[h][w+ds])); // move E
 					//std::cout << w << "," << h << " => " << w+ds << "," << h << std::endl;
-				}
-// only allow steps N & E
-#if(0)										
-				if(h-ds >= 0) {
-					n->steps.push_back(&(l[h-ds][w])); // S 1 2 3
-					//std::cout << w << "," << h << " => " << w << "," << h-ds << std::endl;
+				}		
+				ds_idx += 1;
+				ds = fg.at(ds_idx).fib;
+			} // end ds selector
+			
+			idx += 1; // inc ident
+		} // for w...
+	} // for h...	
+
+	// now consider possible NE  diagonal steps
+	// rescan all nodes
+	// apply any NE steps at each node
+	for(auto h = 0; h <= H; ++h) {
+		for(auto w = 0; w <= W; ++w) {
+			 
+			Node *n = &l[h][w];						
+
+			// scan values of dw & dh
+			int ds_idx = 4;			
+			int dw = fg.at(ds_idx).a;
+			int dh = fg.at(ds_idx).b;
+			
+			while (MAX(dw,dh) <= MAX(W,H)) {
+							
+				if((w+dw <= W)and(h+dh <= H)) {
+					n->steps.push_back(&(l[h+dh][w+dw])); // NE QUADRANT 5
+						//std::cout << w << "," << h << " => " << w+dw << "," << h+dh << std::endl;
 				}
 				
-				if(w-ds >= 0) {
-					n->steps.push_back(&(l[h][w-ds])); // W 1 2 3
-					//std::cout << w << "," << h << " => " << w-ds << "," << h << std::endl;
+				if((w+dh <= W)and(h+dw <= H)) {
+					n->steps.push_back(&(l[h+dw][w+dh])); // NE QUADRANT 5
+						//std::cout << w << "," << h << " => " << w+dh << "," << h+dw << std::endl;
 				}
-#endif
-			} // for ds = 1->3
-			
-//......................................................................			
-			
-			// now consider 8 possible diagonal steps
-			int dw = 4; int dh = 3;	// DEBUG SET ONLY
-			
-			if((w+dw <= W)and(h+dh <= H)) {
-				n->steps.push_back(&(l[h+dh][w+dw])); // NE QUADRANT 5
-					//std::cout << w << "," << h << " => " << w+dw << "," << h+dh << std::endl;
+				ds_idx += 2;
+				dw = fg.at(ds_idx).a;
+				dh = fg.at(ds_idx).b;
 			}
-			if((w+dh <= W)and(h+dw <= H)) {
-				n->steps.push_back(&(l[h+dw][w+dh])); // NE QUADRANT 5
-					//std::cout << w << "," << h << " => " << w+dh << "," << h+dw << std::endl;
-			}
-// only allow  steps NE
-#if(0)
-		
-			if((w+dw <= W)and(h-dh >= 0)) {
-				n->steps.push_back(&(l[h-dh][w+dw])); // SE QUADRANT 5
-					//std::cout << w << "," << h << " => " << w+dw << "," << h-dh << std::endl;
-			}
-			if((w+dh <= W)and(h-dw >= 0)) {
-				n->steps.push_back(&(l[h-dw][w+dh])); // SE QUADRANT 5
-					//std::cout << w << "," << h << " => " << w+dh << "," << h-dw << std::endl;
-			}
-			
-			if((0 <= w-dw)and(0 <= h-dh)) {
-				n->steps.push_back(&(l[h-dh][w-dw])); // SW QUADRANT 5
-					//std::cout << w << "," << h << " => " << w-dw << "," << h-dh << std::endl;
-			}
-			if((0 <= w-dh)and(0 <= h-dw)) {
-				n->steps.push_back(&(l[h-dw][w-dh])); // SW QUADRANT 5
-					//std::cout << w << "," << h << " => " << w-dh << "," << h-dw << std::endl;
-			}
-			
-			if((0 <= w-dw)and(h+dh <= H)) {
-				n->steps.push_back(&(l[h+dh][w-dw])); // NE QUADRANT 5
-					//std::cout << w << "," << h << " => " << w-dw << "," << h+dh << std::endl;
-			}
-			if((0 <= w-dh)and(h+dw <= H)) {
-				n->steps.push_back(&(l[h+dw][w-dh])); // NE QUADRANT 5
-					//std::cout << w << "," << h << " => " << w-dh << "," << h+dw << std::endl;
-			}
-			
-#endif
-//......................................................................
-
-			idx += 1;
-		} // for w...
-	} // for h...
+		}
+	}
 	
 	// adjust the node status for root & home
 	l[0][0].status = on_path;
 	l[H][W].status = goal;
-#if(0)		
-	// Testing for symmetry using F(2,2) = 14
-	
-	l[2][1].status = goal; // node 5
-	l[1][2].status = goal; // node 7
-	l[2][2].status = on_path; // node 8
-	
-	l[0][2].status = goal; // node 2
-	l[1][1].status = goal; // node 4
-	l[2][0].status = goal; // node 6
-#endif	
+
 }
 //----------------------------------------------------------------------
 
@@ -202,7 +210,8 @@ void voidsolve(Node *n, int &count, std::vector<int> &path) {
 	path.pop_back();	// pop this node index
 	// ...and retreat
 }
-// debug print routines
+
+// -----debug print routines-----
 void prt_path(Node *goal, std::vector<int> &path) {
 	std::cout<<"Goal path: ";
 	for(auto it = path.begin(); it != path.end(); ++it) std::cout << *it << ", ";
@@ -236,14 +245,18 @@ void prt_lattice(Lattice &l){
 }
 
 //======================================================================
+
 int main(int argc, char **argv)
 {
 	Lattice l;
 	int count = 0;
 	Node *root = &l[0][0];
 	bool result;
+	FGroups fg;
 	
-	initalise_lattice(l); // examine all paths from root node
+	initialise_fgroups(fg, Max_Fibonacci);
+	
+	initalise_lattice(l,fg); // examine all paths from root node
 	
 	std::vector<int> current_path;
 	
