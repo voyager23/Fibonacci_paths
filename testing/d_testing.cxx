@@ -27,8 +27,8 @@
 #include <utility>
 #include <iomanip>
 
-const int W = 2;
-const int H = 2;
+const int W = 3;
+const int H = 1;
 
 //typedef struct Node Node;
 
@@ -151,7 +151,7 @@ void initalise_lattice(Lattice &l){
 	// adjust the node status for root & home
 	l[0][0].status = on_path;
 	l[H][W].status = goal;
-#if(1)		
+#if(0)		
 	// Testing for symmetry using F(2,2) = 14
 	
 	l[2][1].status = goal; // node 5
@@ -187,7 +187,7 @@ void voidsolve(Node *n, int &count, std::vector<int> &path) {
 		if((*option)->status == on_path) continue;
 		if((*option)->status == goal) {
 			count += 1;
-			prt_path((*option), path);
+			//prt_path((*option), path);
 		}
 		
 		if((*option)->status == avail)
