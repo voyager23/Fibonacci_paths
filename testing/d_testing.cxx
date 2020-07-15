@@ -28,10 +28,10 @@
 #include <iomanip>
 #include <algorithm>
 
-#define SQ 2;
+#define SQ 3;
 
-const int W = SQ;
-const int H = SQ;
+const int W = 1;
+const int H = 3;
 
 const int Max_Fibonacci=10001;
 
@@ -195,7 +195,7 @@ void voidsolve(Node *n, int &count, std::vector<int> &path) {
 		if((*option)->status == on_path) continue;
 		if((*option)->status == goal) {
 			count += 1;
-			//prt_path((*option), path);
+			prt_path((*option), path);
 		}
 		
 		if((*option)->status == avail)
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
 	
 	std::vector<int> current_path;
 	
-	// prt_lattice(l);
+	std::cout << "Solving F(" << W << "," << H << ")" << std::endl;
 	
 	voidsolve(root, count, current_path);
 		
