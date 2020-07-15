@@ -28,10 +28,10 @@
 #include <iomanip>
 #include <algorithm>
 
-#define SQ 3;
+#define SQ 4;
 
-const int W = 1;
-const int H = 3;
+const int W = 2;
+const int H = 2;
 
 const int Max_Fibonacci=10001;
 
@@ -99,7 +99,13 @@ void initalise_lattice(Lattice &l, FGroups &fg){
 	 * 0 <= w+ds <= W    0 <= h+ds <= H
 	 * 
 	 * ONLY N, E, NE steps are allowed
+	 * 
+	 * ONLY VALID FOR SQUARE LATTICE
+	 * 
 	 */
+	 
+	 std::cout << "Valid for square matrix only." << std::endl;
+	 
  	int idx = 0;	// node ident
 	for(auto h = 0; h <= H; ++h) {
 		for(auto w = 0; w <= W; ++w) {
@@ -169,6 +175,9 @@ void initalise_lattice(Lattice &l, FGroups &fg){
 	// adjust the node status for root & home
 	l[0][0].status = on_path;
 	l[H][W].status = goal;
+	
+	//Patch code
+	for(auto w = 0; w <= W; ++w) l[0][w].status = on_path;
 
 }
 //----------------------------------------------------------------------
