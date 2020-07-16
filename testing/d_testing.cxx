@@ -28,10 +28,10 @@
 #include <iomanip>
 #include <algorithm>
 
-#define SQ 4;
+#define SQ 6;
 
-const int W = 2;
-const int H = 2;
+const int W = SQ;
+const int H = SQ;
 
 const int Max_Fibonacci=10001;
 
@@ -161,10 +161,15 @@ void initalise_lattice(Lattice &l, FGroups &fg){
 						//std::cout << w << "," << h << " => " << w+dw << "," << h+dh << std::endl;
 				}
 				
+				// Switch off this section for symmetry testing
+
+#if(0)
 				if((w+dh <= W)and(h+dw <= H)) {
 					n->steps.push_back(&(l[h+dw][w+dh])); // NE QUADRANT 5
 						//std::cout << w << "," << h << " => " << w+dh << "," << h+dw << std::endl;
 				}
+#endif
+
 				ds_idx += 2;
 				dw = fg.at(ds_idx).a;
 				dh = fg.at(ds_idx).b;
