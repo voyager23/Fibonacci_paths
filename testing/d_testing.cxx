@@ -209,7 +209,7 @@ void voidsolve(Node *n, int &count, std::vector<int> &path) {
 		if((*option)->status == on_path) continue;
 		if((*option)->status == goal) {
 			count += 1;
-			prt_path((*option), path);
+			//prt_path((*option), path);
 		}
 		
 		if((*option)->status == avail)
