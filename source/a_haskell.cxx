@@ -45,11 +45,14 @@ const unsigned MinFibonacci = 10000;
 // macro to swap w and h values
 #define SWAPWH(w,h) w = w xor h; h = h xor w; w = w xor h;
 
+// -----Global variables-----
 std::array< std::array<unsigned, W>, H> lattice;
+std::vector<Step> rect_step;
+std::vector<Step> pyth_step;
+Fibvect fibonacci;
 
-
+// -----Definitions-----
 void construct_fibvect(Fibvect &fv);
-
 void construct_fibvect(Fibvect &fv) {
 	fv.clear();
 	fv.push_back( {0,0,0 } ); // F(0)
@@ -70,12 +73,20 @@ void construct_fibvect(Fibvect &fv) {
 		idx += 2;
 	} while(idx < fv.size());
 }
-
-Fibvect fibonacci;
-
+void construct_rect_step(std::vector<Step> &rs, Fibvect &fv);
+void construct_rect_step(std::vector<Step> &rs, Fibvect &fv) {
+	
+}
+void construct_pyth_step(std::vector<Step> &ps, Fibvect &fv);
+void construct_pyth_step(std::vector<Step> &ps, Fibvect &fv) {
+	
+}
+// -----Main Code-----
 int main(int argc, char **argv)
 {
 	construct_fibvect(fibonacci);
+	construct_rect_step(rect_step, fibonacci);
+	construct_pyth_step(pyth_step, fibonacci);
 	
 	return 0;
 }
