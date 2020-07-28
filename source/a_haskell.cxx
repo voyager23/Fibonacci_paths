@@ -25,20 +25,21 @@
 
 
 #include <iostream>
+#include <iomanip>
 #include <array>
 #include <vector>
 
-typedef std::array<unsigned, 3> Fibgroup;
-typedef std::array<unsigned, 2> Coord;
+typedef std::array<int, 3> Fibgroup;
+typedef std::array<int, 2> Coord;
 typedef std::vector<Fibgroup> Fibvect;
 typedef struct {
-	unsigned count;
+	int count;
 	std::vector<Coord> steps;
 } Node;
 
-const unsigned W = 10;
-const unsigned H = 10;
-const unsigned MinFibonacci = 10000;
+const int W = 10;
+const int H = 10;
+const int MinFibonacci = 10000;
 
 // macro to swap w and h values
 #define SWAPWH(coord) coord[0] = coord[0] xor coord[1]; coord[1] = coord[1] xor coord[0]; coord[0] = coord[0] xor coord[1];
@@ -50,9 +51,13 @@ std::vector<Coord> pyth_step;
 Fibvect fibonacci;
 
 // -----Definitions-----
-bool valid_coord(Coord &coord);
-bool valid_coord(Coord &coord) {
-	return  ((((coord[0]>=0)and(coord[0]<=W))and((coord[1]>=0)and(coord[1]<=H))) ? true : false);	
+void prt_lattice(std::array<std::array<Node, W>, H> &l);
+void prt_lattice(std::array<std::array<Node, W>, H> &l) {
+	// Top-down print of lattice
+	for(auto row = H-1; row >= 0; --row) {
+		for(auto col = 0; col != W; ++col) std::cout << std::setw(4) << lattice[col][row].count << " ";
+		std::cout << std::endl;
+	}
 }
 
 void construct_fibvect(Fibvect &fv);
@@ -61,13 +66,13 @@ void construct_fibvect(Fibvect &fv) {
 	fv.push_back( {0,0,0 } ); // F(0)
 	fv.push_back( {1,0,0 } ); // F(1)
 	
-	unsigned current_fibonacci = 0;
+	int current_fibonacci = 0;
 	do {
 		current_fibonacci = (*(fv.end()-1))[0] + (*(fv.end()-2))[0];
 		fv.push_back({current_fibonacci,0,0});
 	} while (current_fibonacci < MinFibonacci);
 	// starting at F(5) value 5, insert the pythag triples
-	unsigned idx = 5;
+	int idx = 5;
 	fv.at(idx) = {5,3,4};
 	idx +=2;
 	do {
@@ -101,79 +106,41 @@ int main(int argc, char **argv)
 	construct_pyth_step(pyth_step, fibonacci);
 	
 	// Setup and reflect values in column 0;
+	// w = 0;
 	lattice[0][0].count = 1;
 	lattice[0][0].steps.clear();
 	for(auto h = 1; h < H; ++h) {
 		lattice[0][h].count = 0;
-		// set iterator to rect_step
-		// target = current - rect_step
-		// if(VALIDWH(target)) {
-		//		add target count to current count;
-		//		swap step
-		//		target = current - rect_step
-		//		if(VALIDWH(target)) add target count to current
-		// } else { // first step failed
-		//		swap step
-		//		target = current -rect_step;
-		//		if(VALIDWH(target) {
-		//			add target count to current;
-		//		} else { 
-		//			break; // both steps failed break from step_loop
-		//		}
-		//	}
 		for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
-			Coord step = *it_rs;
-			Coord target = { (0 - step[0]), (h - step[1]) };
-			if(valid_coord(target)) {
-				lattice[0][h].count += lattice[target[0]][target[1]].count;
-				target = { (0 - step[1]), (h - step[0]) }; // swapped the step coords
-				if(valid_coord(target))
-					lattice[0][h].count += lattice[target[0]][target[1]].count;
-				// reflect result
+			int step = (*it_rs)[0];
+			Coord target = { 0, (h - step) };
+			if((h - step) >= 0) {
+				lattice[0][h].count += lattice[0][target[1]].count;
+				// reflect to horizontal axis
 				lattice[h][0].count = lattice[0][h].count;
-			} else { // first step failed
-				target = { (0 - step[1]), (h - step[0]) }; // swapped the step coords
-				if(valid_coord(target)) {
-					lattice[0][h].count += lattice[target[0]][target[1]].count;
-					// reflect result
-					lattice[h][0].count = lattice[0][h].count;					
-				} else {
-					break; // both steps failed
-				} // break
-			} // first step fail
-		} // it_rs
-		
-	} // column 0;
-	
-	// starting at w1,h1 ascend column, setting counts and reflecting results
-	for(auto h = 1; h < H; ++h) {
-		int w = h;
-		
-		lattice[w][h].count = 0; // 
-		
-		for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
-			Coord step = *it_rs;
-			Coord target = { (w - step[0]), (h - step[1]) };
-			if(valid_coord(target)) {
-				lattice[w][h].count += lattice[target[0]][target[1]].count;
-				target = { (w - step[1]), (h - step[0]) }; // swapped the step coords
-				if(valid_coord(target))
-					lattice[w][h].count += lattice[target[0]][target[1]].count;
-				// reflect result
-				lattice[h][w].count = lattice[0][h].count;
-			} else { // first step failed
-				target = { (w - step[1]), (h - step[0]) }; // swapped the step coords
-				if(valid_coord(target)) {
-					lattice[w][h].count += lattice[target[0]][target[1]].count;
-					// reflect result
-					lattice[h][w].count = lattice[0][h].count;					
-				} else {
-					break; // both steps failed
-				} // break
-			} // first step fail
-		} // it_rs
-				
+			} else {
+				break;
+			}
+		}			
 	}
+#if(0)	
+	// Starting at h = 1, update counts for a row and reflect across diagonal
+	for(auto h = 1; h < H; ++h) {
+		for(auto w = h; w >= 0; --w) {
+			lattice[w][h].count = 0;
+			for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
+				int step = (*it_rs)[0];
+				if((w - step) >= 0) {
+					lattice[w][h].count += lattice[w-step][h].count;
+					// Assuming symmetry the (h-step) must be valid
+					lattice[w][h].count += lattice[w][h-step].count;
+					lattice[h][w].count = lattice[w][h].count;
+				} // if...
+			} // for it_rs
+		} // for w
+	} // for h
+#endif
+	prt_lattice(lattice);
 	return 0;
 }
 
