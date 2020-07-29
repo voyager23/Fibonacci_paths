@@ -37,8 +37,10 @@ typedef struct {
 	std::vector<Coord> steps;
 } Node;
 
-const int W = 10;
-const int H = 10;
+const int S = 4;
+
+const int W = S;
+const int H = S;
 const int MinFibonacci = 10000;
 
 // macro to swap w and h values
@@ -123,11 +125,12 @@ int main(int argc, char **argv)
 			}
 		}			
 	}
-#if(0)	
+
 	// Starting at h = 1, update counts for a row and reflect across diagonal
 	for(auto h = 1; h < H; ++h) {
-		for(auto w = h; w >= 0; --w) {
+		for(auto w = 1; w <= h; ++w) {
 			lattice[w][h].count = 0;
+			
 			for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
 				int step = (*it_rs)[0];
 				if((w - step) >= 0) {
@@ -139,7 +142,7 @@ int main(int argc, char **argv)
 			} // for it_rs
 		} // for w
 	} // for h
-#endif
+
 	prt_lattice(lattice);
 	return 0;
 }
