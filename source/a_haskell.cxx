@@ -33,15 +33,16 @@ typedef std::array<int, 3> Fibgroup;
 typedef std::array<int, 2> Coord;
 typedef std::vector<Fibgroup> Fibvect;
 typedef struct {
-	int count;
+	unsigned count;
 	std::vector<Coord> steps;
 } Node;
 
-const int S = 6;
+const int S = 10;
 
 const int W = S;
 const int H = S;
 const int MinFibonacci = 10000;
+const unsigned modulus = 1000000007;
 
 // macro to swap w and h values
 #define SWAPWH(coord) coord[0] = coord[0] xor coord[1]; coord[1] = coord[1] xor coord[0]; coord[0] = coord[0] xor coord[1];
@@ -57,7 +58,7 @@ void prt_lattice(std::array<std::array<Node, W>, H> &l);
 void prt_lattice(std::array<std::array<Node, W>, H> &l) {
 	// Top-down print of lattice
 	for(auto row = H-1; row >= 0; --row) {
-		for(auto col = 0; col != W; ++col) std::cout << std::setw(6) << lattice[col][row].count << " ";
+		for(auto col = 0; col != W; ++col) std::cout << std::setw(10) << lattice[col][row].count << " ";
 		std::cout << std::endl;
 	}
 }
@@ -131,17 +132,17 @@ int main(int argc, char **argv)
 		for(auto w = 1; w <= h; ++w) {
 			lattice[w][h].count = 0;			
 			for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
+				// rectilinear steps
 				int w_step = w - (*it_rs)[0];
 				int h_step = h - (*it_rs)[0];
-				if((w_step) >= 0) {
+				if(w_step >= 0) {
 					// do west step
 					lattice[w][h].count += lattice[w_step][h].count;
-					if((h_step) >= 0) {
+					if(h_step >= 0) {
 						// do south step
 					lattice[w][h].count += lattice[w][h_step].count;				
 					}
-					
-				} else if((h_step) >= 0) {
+				} else if(h_step >= 0) {
 					// do south step
 						lattice[w][h].count += lattice[w][h_step].count;				
 				} else { // no more steps - reflect count
@@ -149,6 +150,32 @@ int main(int argc, char **argv)
 					break;
 				}								
 			} // for it_rs
+			
+			// pythagoras triple steps
+			for(auto it_py = pyth_step.begin(); it_py != pyth_step.end(); ++it_py) {
+				int w_step = w - (*it_py)[0];
+				int h_step = h - (*it_py)[1];
+				if((w_step >= 0)and(h_step >= 0)) {
+					lattice[w][h].count += lattice[w_step][h_step].count;
+					// swap coords
+					w_step = w_step xor h_step;
+					h_step = h_step xor w_step;
+					w_step = w_step xor h_step;
+					if((w_step >= 0)and(h_step >=0)) lattice[w][h].count += lattice[w_step][h_step].count;
+				} else {
+					// swap coords
+					w_step = w_step xor h_step;
+					h_step = h_step xor w_step;
+					w_step = w_step xor h_step;
+					if((w_step >= 0)and(h_step >=0)) {
+						lattice[w][h].count += lattice[w_step][h_step].count;
+					} else {
+						lattice[h][w].count = lattice[w][h].count;
+						break;
+					}
+				}
+			}
+			
 		} // for w
 	} // for h
 
