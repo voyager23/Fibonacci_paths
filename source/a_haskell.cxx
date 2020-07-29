@@ -39,8 +39,8 @@ typedef struct {
 
 const int S = 10;
 
-const int W = S;
-const int H = S;
+const int W = S+1;
+const int H = S+1;
 const int MinFibonacci = 10000;
 const unsigned modulus = 1000000007;
 
@@ -138,13 +138,16 @@ int main(int argc, char **argv)
 				if(w_step >= 0) {
 					// do west step
 					lattice[w][h].count += lattice[w_step][h].count;
+					lattice[w][h].count %= modulus;
 					if(h_step >= 0) {
 						// do south step
-					lattice[w][h].count += lattice[w][h_step].count;				
+					lattice[w][h].count += lattice[w][h_step].count;
+					lattice[w][h].count %= modulus;
 					}
 				} else if(h_step >= 0) {
 					// do south step
-						lattice[w][h].count += lattice[w][h_step].count;				
+						lattice[w][h].count += lattice[w][h_step].count;
+						lattice[w][h].count %= modulus;				
 				} else { // no more steps - reflect count
 					lattice[h][w].count = lattice[w][h].count;
 					break;
@@ -157,18 +160,28 @@ int main(int argc, char **argv)
 				int h_step = h - (*it_py)[1];
 				if((w_step >= 0)and(h_step >= 0)) {
 					lattice[w][h].count += lattice[w_step][h_step].count;
+					lattice[w][h].count %= modulus;
 					// swap coords
-					w_step = w_step xor h_step;
-					h_step = h_step xor w_step;
-					w_step = w_step xor h_step;
-					if((w_step >= 0)and(h_step >=0)) lattice[w][h].count += lattice[w_step][h_step].count;
-				} else {
-					// swap coords
-					w_step = w_step xor h_step;
-					h_step = h_step xor w_step;
-					w_step = w_step xor h_step;
+					//w_step = w_step xor h_step;
+					//h_step = h_step xor w_step;
+					//w_step = w_step xor h_step;
+					w_step = w - (*it_py)[1];
+					h_step = h - (*it_py)[0];					
 					if((w_step >= 0)and(h_step >=0)) {
 						lattice[w][h].count += lattice[w_step][h_step].count;
+						lattice[w][h].count %= modulus;
+					}
+
+				} else {
+					// swap coords
+					//w_step = w_step xor h_step;
+					//h_step = h_step xor w_step;
+					//w_step = w_step xor h_step;
+					w_step = w - (*it_py)[1];
+					h_step = h - (*it_py)[0];				
+					if((w_step >= 0)and(h_step >=0)) {
+						lattice[w][h].count += lattice[w_step][h_step].count;
+						lattice[w][h].count %= modulus;
 					} else {
 						lattice[h][w].count = lattice[w][h].count;
 						break;
