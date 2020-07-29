@@ -37,7 +37,7 @@ typedef struct {
 	std::vector<Coord> steps;
 } Node;
 
-const int S = 4;
+const int S = 6;
 
 const int W = S;
 const int H = S;
@@ -57,7 +57,7 @@ void prt_lattice(std::array<std::array<Node, W>, H> &l);
 void prt_lattice(std::array<std::array<Node, W>, H> &l) {
 	// Top-down print of lattice
 	for(auto row = H-1; row >= 0; --row) {
-		for(auto col = 0; col != W; ++col) std::cout << std::setw(4) << lattice[col][row].count << " ";
+		for(auto col = 0; col != W; ++col) std::cout << std::setw(6) << lattice[col][row].count << " ";
 		std::cout << std::endl;
 	}
 }
@@ -129,16 +129,25 @@ int main(int argc, char **argv)
 	// Starting at h = 1, update counts for a row and reflect across diagonal
 	for(auto h = 1; h < H; ++h) {
 		for(auto w = 1; w <= h; ++w) {
-			lattice[w][h].count = 0;
-			
+			lattice[w][h].count = 0;			
 			for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
-				int step = (*it_rs)[0];
-				if((w - step) >= 0) {
-					lattice[w][h].count += lattice[w-step][h].count;
-					// Assuming symmetry the (h-step) must be valid
-					lattice[w][h].count += lattice[w][h-step].count;
+				int w_step = w - (*it_rs)[0];
+				int h_step = h - (*it_rs)[0];
+				if((w_step) >= 0) {
+					// do west step
+					lattice[w][h].count += lattice[w_step][h].count;
+					if((h_step) >= 0) {
+						// do south step
+					lattice[w][h].count += lattice[w][h_step].count;				
+					}
+					
+				} else if((h_step) >= 0) {
+					// do south step
+						lattice[w][h].count += lattice[w][h_step].count;				
+				} else { // no more steps - reflect count
 					lattice[h][w].count = lattice[w][h].count;
-				} // if...
+					break;
+				}								
 			} // for it_rs
 		} // for w
 	} // for h
