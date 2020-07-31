@@ -49,7 +49,6 @@ typedef std::array<int, 2> Coord;
 typedef std::vector<Fibgroup> Fibvect;
 typedef struct {
 	int count;
-	std::vector<Coord> steps;
 } Node;
 
 const int S = 10;
@@ -127,7 +126,6 @@ int main(int argc, char **argv)
 	// Setup and reflect values in column 0;
 	// w = 0;
 	lattice[0][0].count = 1;
-	lattice[0][0].steps.clear();
 	for(auto h = 1; h < H; ++h) {
 		lattice[0][h].count = 0;
 		for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
@@ -172,15 +170,48 @@ int main(int argc, char **argv)
 			} // for it_rs
 			
 			// ----------pythagoras triple steps----------
+			int wnode = w;	int hnode = h;
 			for(auto it_py = pyth_step.begin(); it_py != pyth_step.end(); ++it_py) {
-				int wx = w - (*it_py)[1];
-				int hx = h - (*it_py)[0];	// above diagonal
-				if(wx < 0) break;
-				if(hx >= wx) {
-					lattice[w][h].count = (lattice[w][h].count + 2 + lattice[wx][hx].count) % modulus;
-					lattice[h][w].count = lattice[w][h].count;
+				bool path_found = false;
+				// ---code_block---
+				int wx = wnode - (*it_py)[1];
+				int hx = hnode - (*it_py)[0];	// primary node path 1
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode].count += lattice[wx][hx].count;
+					lattice[wnode][hnode].count %= modulus;
+					path_found = true;
 				}
-			} // -------------------------------------------			
+				wx = wnode - (*it_py)[0];
+				hx = hnode - (*it_py)[1];		// primary node path 2
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode].count += lattice[wx][hx].count;
+					lattice[wnode][hnode].count %= modulus;
+					path_found = true;
+				}
+				// ---end_block---
+				// complementary node exchange values of wnode and hnode
+				wnode = wnode xor hnode;
+				hnode = hnode xor wnode;
+				wnode = wnode xor hnode;
+				// ---code_block---
+				wx = wnode - (*it_py)[1];
+				hx = hnode - (*it_py)[0];	// comp. node path 1
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode].count += lattice[wx][hx].count;
+					lattice[wnode][hnode].count %= modulus;
+					path_found = true;
+				}
+				wx = wnode - (*it_py)[0];
+				hx = hnode - (*it_py)[1];		// comp. node path 2
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode].count += lattice[wx][hx].count;
+					lattice[wnode][hnode].count %= modulus;
+					path_found = true;
+				}
+				// ---end_block---
+				if(!path_found) break;
+
+			} // end pythagoras						
 		} // for w
 	} // for h
 
