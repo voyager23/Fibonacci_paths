@@ -1,5 +1,5 @@
 /*
- * a_haskell.cxx
+ * c_haskell.cxx
  * 
  * Copyright 2020 mike <mike@Intel-i7>
  * 
@@ -140,74 +140,88 @@ int main(int argc, char **argv)
 		}			
 	}
 
-	// Starting at h = 1, update counts for a row and reflect across diagonal
-	for(auto h = 1; h < H; ++h) {
-		for(auto w = 1; w <= h; ++w) {
-			lattice[w][h] = 0;			
+	// set the corner point
+	int corner = 1; 
+	//while( corner <= S)		
+		// do horizontal line, rect and diagonal
+		// do vertical line, rect and diagonal
+		// do corner, rect and diagonal
+		// increment corner
+	// end while
+	
+	while(corner <= S) {
+		for(auto n = 1; n < corner; ++n) {
+			// process lattice[n][corner] rect count + diagonal count
+			// process lattice[corner][n] rect count + diagonal count
+			// ------------------------------------------------------
+			// process lattice[corner][corner] rect_count + diagonal count
+			// increment corner
+			lattice[n][corner] = 0;
+			lattice[corner][n] = 0;
+			// possible rect steps
 			for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
-				// rectilinear steps
-				int w_step = w - (*it_rs)[0];
-				int h_step = h - (*it_rs)[0];
-				if(w_step >= 0) {
-					// do west step
-					lattice[w][h] += lattice[w_step][h];
-					lattice[w][h] %= modulus;
-					if(h_step >= 0) {
-						// do south step
-					lattice[w][h] += lattice[w][h_step];
-					lattice[w][h] %= modulus;
-					}
-				} else if(h_step >= 0) {
-					// do south step
-						lattice[w][h] += lattice[w][h_step];
-						lattice[w][h] %= modulus;				
-				} else { // no more steps - reflect count
-					lattice[h][w] = lattice[w][h];
-					break;
-				}								
-			} // for it_rs
-			
-			// ----------pythagoras triple steps----------
-			int wnode = w;	int hnode = h;
+				int step = n - (*it_rs)[0];
+				if(step > 0) {
+					lattice[n][corner] += lattice[step][corner];
+					lattice[n][corner] %= modulus;
+					
+					lattice[corner][n] += lattice[corner][step];
+					lattice[corner][n] %= modulus;
+				}
+			}
+			// possible diagonal steps
 			int wx = 0;	int hx = 0; int temp = 0;
 			for(auto it_py = pyth_step.begin(); it_py != pyth_step.end(); ++it_py) {
 				bool path_found = false;
-
-				wx = wnode - (*it_py)[0];
-				hx = hnode - (*it_py)[1];	// path 1
+				wx = n - (*it_py)[0];
+				hx = corner - (*it_py)[1];	// path 1
 				if((wx>=0)and(hx>=0)) {
-					lattice[wnode][hnode] += lattice[wx][hx];
-					lattice[wnode][hnode] %= modulus;
+					lattice[n][corner] += lattice[wx][hx];
+					lattice[n][corner] %= modulus;
 					path_found = true;
-				}
+				}				
 				// switch values of wx and hx
 				temp = wx;	wx = hx;  hx = temp;
 				if((wx>=0)and(hx>=0)) {
-					lattice[wnode][hnode] += lattice[wx][hx];
-					lattice[wnode][hnode] %= modulus;
+					lattice[n][corner] += lattice[wx][hx];
+					lattice[n][corner] %= modulus;
 					path_found = true;
 				}
 							
-				wx = wnode - (*it_py)[1];
-				hx = hnode - (*it_py)[0];	// path 2
+				wx = n - (*it_py)[1];
+				hx = corner - (*it_py)[0];	// path 2
 				if((wx>=0)and(hx>=0)) {
-					lattice[wnode][hnode] += lattice[wx][hx];
-					lattice[wnode][hnode] %= modulus;
+					lattice[n][corner] += lattice[wx][hx];
+					lattice[n][corner] %= modulus;
 					path_found = true;
 				}
 				
 				// switch values of wx and hx
 				temp = wx;	wx = hx;  hx = temp;
 				if((wx>=0)and(hx>=0)) {
-					lattice[wnode][hnode] += lattice[wx][hx];
-					lattice[wnode][hnode] %= modulus;
+					lattice[n][corner] += lattice[wx][hx];
+					lattice[n][corner] %= modulus;
 					path_found = true;
 				}			
 				if(!path_found) break;
-			} // end pythagoras						
-		} // for w
-	} // for h
-
+			}		
+		}
+		// now process corner
+		lattice[corner][corner] = 0;
+		for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
+			int step = corner - (*it_rs)[0];
+			if(step > 0) {
+				lattice[corner][corner] += lattice[step][corner];
+				lattice[corner][corner] %= modulus;
+				
+				lattice[corner][corner] += lattice[corner][step];
+				lattice[corner][corner] %= modulus;
+			}
+		}		
+		// ------------------
+		corner += 1;
+	} // while (corner <= S)
+				
 	prt_lattice(lattice);
 	std::cout << "F(" << S << "," << S << ") = " << lattice[S][S] << std::endl;
 	return 0;

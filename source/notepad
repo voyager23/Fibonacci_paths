@@ -1,4 +1,101 @@
-Here are some other results:
+
+		// ----------pythagoras triple steps----------
+			int wnode = w;	int hnode = h;
+			int wx = 0;	int hx = 0; int temp = 0;
+			for(auto it_py = pyth_step.begin(); it_py != pyth_step.end(); ++it_py) {
+				bool path_found = false;
+
+				wx = wnode - (*it_py)[0];
+				hx = hnode - (*it_py)[1];	// path 1
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
+					path_found = true;
+				}
+				// switch values of wx and hx
+				temp = wx;	wx = hx;  hx = temp;
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
+					path_found = true;
+				}
+							
+				wx = wnode - (*it_py)[1];
+				hx = hnode - (*it_py)[0];	// path 2
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
+					path_found = true;
+				}
+				
+				// switch values of wx and hx
+				temp = wx;	wx = hx;  hx = temp;
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
+					path_found = true;
+				}			
+				if(!path_found) break;
+			} // end pythagoras			
+			
+			
+			
+									
+			// ----------pythagoras triple steps----------
+			int wnode = w;	int hnode = h;
+			for(auto it_py = pyth_step.begin(); it_py != pyth_step.end(); ++it_py) {
+				bool path_found = false;
+				// ---code_block---
+				int wx = wnode - (*it_py)[1];
+				int hx = hnode - (*it_py)[0];	// primary node path 1
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
+					lattice[wnode][hnode] += lattice[hx][wx];
+					lattice[wnode][hnode] %= modulus;
+					path_found = true;
+				}
+				wx = wnode - (*it_py)[0];
+				hx = hnode - (*it_py)[1];		// primary node path 2
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
+					lattice[wnode][hnode] += lattice[hx][wx];
+					lattice[wnode][hnode] %= modulus;
+					path_found = true;
+				}
+				// ---end_block---
+				
+				lattice[hnode][wnode] = lattice[wnode][hnode];
+#if(0)
+				// complementary node exchange values of wnode and hnode
+				wnode = wnode xor hnode;
+				hnode = hnode xor wnode;
+				wnode = wnode xor hnode;
+				// ---code_block---
+				wx = wnode - (*it_py)[1];
+				hx = hnode - (*it_py)[0];	// comp. node path 1
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
+					lattice[wnode][hnode] += lattice[hx][wx];
+					lattice[wnode][hnode] %= modulus;
+					path_found = true;
+				}
+				wx = wnode - (*it_py)[0];
+				hx = hnode - (*it_py)[1];		// comp. node path 2
+				if((wx>=0)and(hx>=0)) {
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
+					lattice[wnode][hnode] += lattice[hx][wx];
+					lattice[wnode][hnode] %= modulus;
+					path_found = true;
+				}
+				// ---end_block---
+#endif
+				if(!path_found) break;
+
+			} // end pythagoras						Here are some other results:
 
 Limit      Result      Time
 -----------------------------
