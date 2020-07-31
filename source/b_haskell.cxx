@@ -47,11 +47,9 @@
 typedef std::array<int, 3> Fibgroup;
 typedef std::array<int, 2> Coord;
 typedef std::vector<Fibgroup> Fibvect;
-typedef struct {
-	int count;
-} Node;
 
-const int S = 10;
+
+const int S = 5 ;
 
 const int W = S+1;
 const int H = S+1;
@@ -63,17 +61,17 @@ const int modulus = 1000000007;
 #define SWAPWH(coord) coord[0] = coord[0] xor coord[1]; coord[1] = coord[1] xor coord[0]; coord[0] = coord[0] xor coord[1];
 
 // -----Global variables-----
-std::array<std::array<Node, W>, H> lattice;
+std::array<std::array<unsigned, W>, H> lattice;
 std::vector<Coord> rect_step;
 std::vector<Coord> pyth_step;
 Fibvect fibonacci;
 
 // -----Definitions-----
-void prt_lattice(std::array<std::array<Node, W>, H> &l);
-void prt_lattice(std::array<std::array<Node, W>, H> &l) {
+void prt_lattice(std::array<std::array<unsigned, W>, H> &l);
+void prt_lattice(std::array<std::array<unsigned, W>, H> &l) {
 	// Top-down print of lattice
 	for(auto row = H-1; row >= 0; --row) {
-		for(auto col = 0; col != W; ++col) std::cout << std::setw(10) << lattice[col][row].count << " ";
+		for(auto col = 0; col != W; ++col) std::cout << std::setw(10) << lattice[col][row] << " ";
 		std::cout << std::endl;
 	}
 }
@@ -125,17 +123,17 @@ int main(int argc, char **argv)
 	
 	// Setup and reflect values in column 0;
 	// w = 0;
-	lattice[0][0].count = 1;
+	lattice[0][0] = 1;
 	for(auto h = 1; h < H; ++h) {
-		lattice[0][h].count = 0;
+		lattice[0][h] = 0;
 		for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
 			int step = (*it_rs)[0];
 			Coord target = { 0, (h - step) };
 			if((h - step) >= 0) {
-				lattice[0][h].count += lattice[0][target[1]].count;
-				lattice[0][h].count %= modulus;
+				lattice[0][h] += lattice[0][target[1]];
+				lattice[0][h] %= modulus;
 				// reflect to horizontal axis
-				lattice[h][0].count = lattice[0][h].count;
+				lattice[h][0] = lattice[0][h];
 			} else {
 				break;
 			}
@@ -145,26 +143,26 @@ int main(int argc, char **argv)
 	// Starting at h = 1, update counts for a row and reflect across diagonal
 	for(auto h = 1; h < H; ++h) {
 		for(auto w = 1; w <= h; ++w) {
-			lattice[w][h].count = 0;			
+			lattice[w][h] = 0;			
 			for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
 				// rectilinear steps
 				int w_step = w - (*it_rs)[0];
 				int h_step = h - (*it_rs)[0];
 				if(w_step >= 0) {
 					// do west step
-					lattice[w][h].count += lattice[w_step][h].count;
-					lattice[w][h].count %= modulus;
+					lattice[w][h] += lattice[w_step][h];
+					lattice[w][h] %= modulus;
 					if(h_step >= 0) {
 						// do south step
-					lattice[w][h].count += lattice[w][h_step].count;
-					lattice[w][h].count %= modulus;
+					lattice[w][h] += lattice[w][h_step];
+					lattice[w][h] %= modulus;
 					}
 				} else if(h_step >= 0) {
 					// do south step
-						lattice[w][h].count += lattice[w][h_step].count;
-						lattice[w][h].count %= modulus;				
+						lattice[w][h] += lattice[w][h_step];
+						lattice[w][h] %= modulus;				
 				} else { // no more steps - reflect count
-					lattice[h][w].count = lattice[w][h].count;
+					lattice[h][w] = lattice[w][h];
 					break;
 				}								
 			} // for it_rs
@@ -177,15 +175,15 @@ int main(int argc, char **argv)
 				int wx = wnode - (*it_py)[1];
 				int hx = hnode - (*it_py)[0];	// primary node path 1
 				if((wx>=0)and(hx>=0)) {
-					lattice[wnode][hnode].count += lattice[wx][hx].count;
-					lattice[wnode][hnode].count %= modulus;
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
 					path_found = true;
 				}
 				wx = wnode - (*it_py)[0];
 				hx = hnode - (*it_py)[1];		// primary node path 2
 				if((wx>=0)and(hx>=0)) {
-					lattice[wnode][hnode].count += lattice[wx][hx].count;
-					lattice[wnode][hnode].count %= modulus;
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
 					path_found = true;
 				}
 				// ---end_block---
@@ -197,15 +195,15 @@ int main(int argc, char **argv)
 				wx = wnode - (*it_py)[1];
 				hx = hnode - (*it_py)[0];	// comp. node path 1
 				if((wx>=0)and(hx>=0)) {
-					lattice[wnode][hnode].count += lattice[wx][hx].count;
-					lattice[wnode][hnode].count %= modulus;
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
 					path_found = true;
 				}
 				wx = wnode - (*it_py)[0];
 				hx = hnode - (*it_py)[1];		// comp. node path 2
 				if((wx>=0)and(hx>=0)) {
-					lattice[wnode][hnode].count += lattice[wx][hx].count;
-					lattice[wnode][hnode].count %= modulus;
+					lattice[wnode][hnode] += lattice[wx][hx];
+					lattice[wnode][hnode] %= modulus;
 					path_found = true;
 				}
 				// ---end_block---
@@ -216,7 +214,7 @@ int main(int argc, char **argv)
 	} // for h
 
 	prt_lattice(lattice);
-	std::cout << "F(" << S << "," << S << ") = " << lattice[S][S].count << std::endl;
+	std::cout << "F(" << S << "," << S << ") = " << lattice[S][S] << std::endl;
 	return 0;
 }
 
