@@ -66,11 +66,11 @@ private:
   std::vector<std::pair<uint32_t,uint32_t>> _moves;
 };
 
-int main(int,char**) {
+int main(int c,char** p) {
 
   assert(solver<10>().solve()==215846462);
   
-  std::cout << solver<12>().solve() << std::endl;
+  std::cout << solver<1000>().solve() << std::endl;
   
   return 0;
 }

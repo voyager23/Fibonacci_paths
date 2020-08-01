@@ -1,5 +1,5 @@
 /*
- * a_haskell.cxx
+ * b_haskell.cxx
  * 
  * Copyright 2020 mike <mike@Intel-i7>
  * 
@@ -49,7 +49,7 @@ typedef std::array<int, 2> Coord;
 typedef std::vector<Fibgroup> Fibvect;
 
 
-const int S = 5 ;
+const int S = 6 ;
 
 const int W = S+1;
 const int H = S+1;
@@ -58,7 +58,7 @@ const int modulus = 1000000007;
 //const int modulus = 17;
 
 // macro to swap w and h values
-#define SWAPWH(coord) coord[0] = coord[0] xor coord[1]; coord[1] = coord[1] xor coord[0]; coord[0] = coord[0] xor coord[1];
+// #define SWAPWH(coord) coord[0] = coord[0] xor coord[1]; coord[1] = coord[1] xor coord[0]; coord[0] = coord[0] xor coord[1];
 
 // -----Global variables-----
 std::array<std::array<unsigned, W>, H> lattice;
@@ -139,6 +139,9 @@ int main(int argc, char **argv)
 			}
 		}			
 	}
+	
+	// patch to correct root value
+	lattice[0][0] = 0;
 
 	// Starting at h = 1, update counts for a row and reflect across diagonal
 	for(auto h = 1; h < H; ++h) {

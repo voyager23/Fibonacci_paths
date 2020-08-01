@@ -1,7 +1,7 @@
 # Makefile for source folder
 
-TARGET =  -o ../bin/c_hask
+TARGET =  -o ../bin/b_hask
 CFLAGS = -ggdb
 
-all: c_haskell.cxx
-	g++ $(CFLAGS) $(TARGET) c_haskell.cxx
+all: b_haskell.cxx
+	g++ $(CFLAGS) $(TARGET) b_haskell.cxx
