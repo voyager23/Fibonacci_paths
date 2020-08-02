@@ -50,7 +50,7 @@ typedef std::array<int, 2> Coord;
 typedef std::vector<Fibgroup> Fibvect;
 
 
-const int S = 50 ;
+const int S = 15 ;
 
 const int W = S+1;
 const int H = S+1;
@@ -163,30 +163,32 @@ int main(int argc, char **argv)
 					lattice[w][h] %= modulus;
 					path_found = true;
 				}
-								
+				if(!path_found) break;
+			}
+			
+			for(auto it_path = fibonacci.begin() + 5; it_path != fibonacci.end(); it_path += 2) {					
 				// do any D steps - update path_found
+				path_found = false;
 				dw = (*it_path)[1];
 				dh = (*it_path)[2];
-				if((dw > 0)and(dh > 0)) {
-					wx = w - dw;
-					hx = h - dh;
-					if((wx >= 0)and(hx >= 0)) {
-						lattice[w][h] += (lattice[wx][hx] * 1);
-						lattice[w][h] %= modulus;
-						path_found = true;
-					}
-					wx = w - dh;
-					hx = h - dw;
-					if((wx >= 0)and(hx >= 0)) {
-						lattice[w][h] += (lattice[wx][hx] * 1);
-						lattice[w][h] %= modulus;
-						path_found = true;
-					}
-				}				
+				wx = w - dw;
+				hx = h - dh;
+				if((wx >= 0)and(hx >= 0)) {
+					lattice[w][h] += lattice[wx][hx];
+					lattice[w][h] %= modulus;
+					path_found = true;
+				}
+				wx = w - dh;
+				hx = h - dw;
+				if((wx >= 0)and(hx >= 0)) {
+					lattice[w][h] += lattice[wx][hx];
+					lattice[w][h] %= modulus;
+					path_found = true;
+				}
+							
 				if(!path_found) break;
+			}
 								
-			} // for it_path...
-			
 		} // for h...
 	} // for w...
 	
