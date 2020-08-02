@@ -1,5 +1,5 @@
 /*
- * b_haskell.cxx
+ * d_haskell.cxx
  * 
  * Copyright 2020 mike <mike@Intel-i7>
  * 
@@ -55,13 +55,12 @@ const int W = S+1;
 const int H = S+1;
 const int MinFibonacci = 20000; // patch code to get triangle legs > 10000
 const int modulus = 1000000007;
-//const int modulus = 17;
 
 // macro to swap w and h values
 // #define SWAPWH(coord) coord[0] = coord[0] xor coord[1]; coord[1] = coord[1] xor coord[0]; coord[0] = coord[0] xor coord[1];
 
 // -----Global variables-----
-std::array<std::array<unsigned, W>, H> lattice;
+std::array<std::array<unsigned,W>,H> lat;
 std::vector<Coord> rect_step;
 std::vector<Coord> pyth_step;
 Fibvect fibonacci;
@@ -118,89 +117,6 @@ void construct_pyth_step(std::vector<Coord> &ps, Fibvect &fv) {
 int main(int argc, char **argv)
 {
 	construct_fibvect(fibonacci);
-	construct_rect_step(rect_step, fibonacci);
-	construct_pyth_step(pyth_step, fibonacci);
-	
-	// Setup and reflect values in column 0;
-	// w = 0;
-	lattice[0][0] = 1;
-	for(auto h = 1; h < H; ++h) {
-		lattice[0][h] = 0;
-		for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
-			int step = (*it_rs)[0];
-			Coord target = { 0, (h - step) };
-			if((h - step) >= 0) {
-				lattice[0][h] += lattice[0][target[1]];
-				lattice[0][h] %= modulus;
-				// reflect to horizontal axis
-				lattice[h][0] = lattice[0][h];
-			} else {
-				break;
-			}
-		}			
-	}
-	
-	// patch to correct root value
-	// lattice[0][0] = 0;
-
-	// Starting at h = 1, update counts for a row and reflect across diagonal
-	for(auto h = 1; h < H; ++h) {
-		for(auto w = 1; w <= h; ++w) {
-			lattice[w][h] = 0;			
-			for(auto it_rs = rect_step.begin(); it_rs != rect_step.end(); ++it_rs) {
-				// rectilinear steps
-				int w_step = w - (*it_rs)[0];
-				int h_step = h - (*it_rs)[0];
-				if(w_step >= 0) {
-					// do west step
-					lattice[w][h] += lattice[w_step][h];
-					lattice[w][h] %= modulus;
-					if(h_step >= 0) {
-						// do south step
-					lattice[w][h] += lattice[w][h_step];
-					lattice[w][h] %= modulus;
-					}
-				} else if(h_step >= 0) {
-					// do south step
-						lattice[w][h] += lattice[w][h_step];
-						lattice[w][h] %= modulus;				
-				} else { // no more steps - reflect count
-					lattice[h][w] = lattice[w][h];
-					break;
-				}								
-			} // for it_rs
-			
-			// ----------pythagoras triple steps----------
-			int wx = 0;	int hx = 0; int temp = 0;
-			for(auto it_py = pyth_step.begin(); it_py != pyth_step.end(); ++it_py) {
-				bool path_found = false;
-
-				wx = w - (*it_py)[0];
-				hx = h - (*it_py)[1];	// path 1
-				if((wx>=0)and(hx>=0)) {
-					lattice[w][h] += lattice[wx][hx];
-					lattice[w][h] %= modulus;
-					path_found = true;
-				// switch values of wx and hx
-					lattice[w][h] += lattice[hx][wx];
-					lattice[w][h] %= modulus;
-					path_found = true;
-				}
-//......................................................................							
-				wx = w - (*it_py)[1];
-				hx = h - (*it_py)[0];	// path 2
-				if((wx>=0)and(hx>=0)) {
-					lattice[w][h] += lattice[wx][hx];
-					lattice[w][h] %= modulus;				
-				// switch values of wx and hx
-					lattice[w][h] += lattice[hx][wx];
-					lattice[w][h] %= modulus;
-					path_found = true;
-				}			
-				if(!path_found) break;
-			} // end pythagoras						
-		} // for w
-	} // for h
 
 	prt_lattice(lattice);
 	std::cout << "F(" << S << "," << S << ") = " << lattice[S][S] << std::endl;
