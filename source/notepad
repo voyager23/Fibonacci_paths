@@ -1,4 +1,31 @@
-
+void construct_fibvect(Fibvect &fv);
+void construct_fibvect(Fibvect &fv) {
+	fv.clear();
+	fv.push_back( {0,0,0 } ); // F(0)
+	fv.push_back( {1,0,0 } ); // F(1)
+	
+	int current_fibonacci = 0;
+	do {
+		current_fibonacci = (*(fv.end()-1))[0] + (*(fv.end()-2))[0];
+		if(current_fibonacci < 5) {
+			fv.push_back({current_fibonacci,0,0});
+		} else { // pythag
+			
+			
+			
+			
+	} while (current_fibonacci < MinFibonacci);
+	
+	// starting at F(5) value 5, insert the pythag triples
+	int idx = 5;
+	fv.at(idx) = {5,3,4};
+	idx +=2;
+	do {
+		fv.at(idx)[1] = fv.at(idx-1)[0] - fv.at(idx-2)[1];
+		fv.at(idx)[2] = fv.at(idx-2)[0] + fv.at(idx-2)[1] + fv.at(idx-2)[2];	
+		idx += 2;
+	} while(idx < fv.size());
+}
 		// ----------pythagoras triple steps----------
 			int wnode = w;	int hnode = h;
 			int wx = 0;	int hx = 0; int temp = 0;

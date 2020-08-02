@@ -43,27 +43,26 @@
 #include <iomanip>
 #include <array>
 #include <vector>
+#include <cmath>
 
 typedef std::array<int, 3> Fibgroup;
 typedef std::array<int, 2> Coord;
 typedef std::vector<Fibgroup> Fibvect;
 
 
-const int S = 4 ;
+const int S = 50 ;
 
 const int W = S+1;
 const int H = S+1;
-const int MinFibonacci = 20000; // patch code to get triangle legs > 10000
+const int MinLeg = S; // patch code to get triangle legs > 10000
 const int modulus = 1000000007;
 
-// macro to swap w and h values
-// #define SWAPWH(coord) coord[0] = coord[0] xor coord[1]; coord[1] = coord[1] xor coord[0]; coord[0] = coord[0] xor coord[1];
-
 // -----Global variables-----
-std::array<std::array<unsigned,W>,H> lat;
+std::array<std::array<unsigned,W>,H> lattice;
 std::vector<Coord> rect_step;
 std::vector<Coord> pyth_step;
 Fibvect fibonacci;
+bool path_found = false;
 
 // -----Definitions-----
 void prt_lattice(std::array<std::array<unsigned, W>, H> &l);
@@ -80,21 +79,28 @@ void construct_fibvect(Fibvect &fv) {
 	fv.clear();
 	fv.push_back( {0,0,0 } ); // F(0)
 	fv.push_back( {1,0,0 } ); // F(1)
-	
+	fv.push_back( {1,0,0 } ); // F(2)
+	fv.push_back( {2,0,0 } ); // F(3)
+	fv.push_back( {3,0,0 } ); // F(4)
+	fv.push_back( {5,3,4 } ); // F(4)
+	// The value of the maximum Fibonnaci is derived from the dimensions of the lattice
+	// Fmax >= sqrt(W*W + H*H)
+	int fmax = (int)sqrt((W*W) + (H*H));
+	int limit = 0;
 	int current_fibonacci = 0;
 	do {
-		current_fibonacci = (*(fv.end()-1))[0] + (*(fv.end()-2))[0];
+		// add non-pythag
+		current_fibonacci = ((*(fv.end()-1))[0] + (*(fv.end()-2))[0]);
 		fv.push_back({current_fibonacci,0,0});
-	} while (current_fibonacci < MinFibonacci);
-	// starting at F(5) value 5, insert the pythag triples
-	int idx = 5;
-	fv.at(idx) = {5,3,4};
-	idx +=2;
-	do {
-		fv.at(idx)[1] = fv.at(idx-1)[0] - fv.at(idx-2)[1];
-		fv.at(idx)[2] = fv.at(idx-2)[0] + fv.at(idx-2)[1] + fv.at(idx-2)[2];	
-		idx += 2;
-	} while(idx < fv.size());
+		
+		// add pythag
+		current_fibonacci = ((*(fv.end()-1))[0] + (*(fv.end()-2))[0]);
+		fv.push_back({current_fibonacci,0,0});
+		(*(fv.end()-1))[1] = (*(fv.end()-2))[0] - (*(fv.end()-3))[1];
+		(*(fv.end()-1))[2] = (*(fv.end()-3))[0] + (*(fv.end()-3))[1] + (*(fv.end()-3))[2];
+		
+		limit =	(*(fv.end()-1))[1];				
+	} while (limit < MinLeg);
 }
 
 void construct_rect_step(std::vector<Coord> &rs, Fibvect &fv);
@@ -116,10 +122,78 @@ void construct_pyth_step(std::vector<Coord> &ps, Fibvect &fv) {
 // -----Main Code-----
 int main(int argc, char **argv)
 {
+	int wx, hx, dw, dh, delta;
+	int w = 0;
+	int h = 0;
+	
 	construct_fibvect(fibonacci);
+	
+	// initialise the vertical axis
+	lattice [0][0] = 1;
+	for(auto h = 1; h != H; ++h) {
+			for(auto it_path = fibonacci.begin() + 2; it_path != fibonacci.end(); ++it_path) {
+				path_found = false;
+				hx = h - (*it_path)[0];
+				if(hx >= 0) {
+					lattice[0][h] += lattice[0][hx];
+					lattice[0][h] %= modulus;
+					lattice[h][0] = lattice[0][h];
+					path_found = true;
+				}
+				if(!path_found) break;
+			}
+		}
+	// main lattice			
+	for(auto w = 1; w != W; ++w) {
+		for(auto h = 1; h != H; ++h) {
+			lattice[w][h] = 0;
+			for(auto it_path = fibonacci.begin() + 2; it_path != fibonacci.end(); ++it_path) {
+				path_found = false;
+				// do any W steps - update path_found 
+				delta= (*it_path)[0];
+				if((w - delta) >= 0) { // h must be valid
+					lattice[w][h] += lattice[w - delta][h];
+					lattice[w][h] %= modulus;
+					path_found = true;
+				}
+				
+				// do any S steps - update path_found
+				if((h - delta) >= 0) { // w must be valid
+					lattice[w][h] += lattice[w][h - delta];
+					lattice[w][h] %= modulus;
+					path_found = true;
+				}
+								
+				// do any D steps - update path_found
+				dw = (*it_path)[1];
+				dh = (*it_path)[2];
+				if((dw > 0)and(dh > 0)) {
+					wx = w - dw;
+					hx = h - dh;
+					if((wx >= 0)and(hx >= 0)) {
+						lattice[w][h] += (lattice[wx][hx] * 1);
+						lattice[w][h] %= modulus;
+						path_found = true;
+					}
+					wx = w - dh;
+					hx = h - dw;
+					if((wx >= 0)and(hx >= 0)) {
+						lattice[w][h] += (lattice[wx][hx] * 1);
+						lattice[w][h] %= modulus;
+						path_found = true;
+					}
+				}				
+				if(!path_found) break;
+								
+			} // for it_path...
+			
+		} // for h...
+	} // for w...
+	
+	
 
 	prt_lattice(lattice);
-	std::cout << "F(" << S << "," << S << ") = " << lattice[S][S] << std::endl;
+	std::cout << "\tF(" << S << "," << S << ") = " << lattice[S][S] << std::endl;
 	return 0;
 }
 
