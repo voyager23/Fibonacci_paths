@@ -50,7 +50,7 @@ typedef std::array<int, 2> Coord;
 typedef std::vector<Fibgroup> Fibvect;
 
 
-const int S = 15 ;
+const int S = 48 ;
 
 const int W = S+1;
 const int H = S+1;
@@ -194,7 +194,7 @@ int main(int argc, char **argv)
 	
 	
 
-	prt_lattice(lattice);
+	//prt_lattice(lattice);
 	std::cout << "\tF(" << S << "," << S << ") = " << lattice[S][S] << std::endl;
 	return 0;
 }
