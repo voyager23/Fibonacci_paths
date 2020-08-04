@@ -37,7 +37,7 @@ typedef struct {
 	int count;
 	std::vector<Coord> steps;
 	
-	Coord this_node; // debug 
+	Coord ident; // debug 
 } Node;
 
 
@@ -73,7 +73,7 @@ void construct_fibvect(Fibvect &fv) {
 	fv.push_back( {1,0,0 } ); // F(2)
 	fv.push_back( {2,0,0 } ); // F(3)
 	fv.push_back( {3,0,0 } ); // F(4)
-	fv.push_back( {5,3,4 } ); // F(4)
+	fv.push_back( {5,3,4 } ); // F(5)
 	// The value of the maximum Fibonnaci is derived from the dimensions of the lattice
 	// Fmax >= sqrt(W*W + H*H)
 	int fmax = (int)sqrt((W*W) + (H*H));
@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
 	
 	Node test_node;
 	
-	test_node.this_node = {48,48};
+	test_node.ident = {48,48};
 	test_node.count = 0;
 	test_node.steps.clear();
 	
