@@ -103,22 +103,6 @@ void construct_fibvect(Fibvect &fv) {
 	} while (limit < MinLeg);
 }
 
-void construct_rect_step(std::vector<Coord> &rs, Fibvect &fv);
-void construct_rect_step(std::vector<Coord> &rs, Fibvect &fv) {
-	// First value will be F(2) = 1
-	rs.clear();
-	for(auto it_fv = fv.begin()+2; it_fv != fv.end(); ++it_fv) 
-		rs.push_back({(*it_fv)[0],0});	
-}
-
-void construct_pyth_step(std::vector<Coord> &ps, Fibvect &fv);
-void construct_pyth_step(std::vector<Coord> &ps, Fibvect &fv) {
-	// First value will be F(5) = 5,3,4
-	ps.clear();
-	for(auto it_fv = fv.begin()+5; it_fv < fv.end(); it_fv += 2)
-		ps.push_back( {(*it_fv)[1], (*it_fv)[2]} );	
-}
-
 // -----Main Code-----
 int main(int argc, char **argv)
 {
