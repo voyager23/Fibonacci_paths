@@ -29,12 +29,12 @@
 #include <vector>
 #include <cmath>
 
-const int F = 40;
+const int F = 47;
 
 const int W = F+1;
 const int H = F+1;
 const int MinLeg = F; // patch code to get triangle legs > 10000
-const unsigned modulus = 1000000007;
+const long modulus = 1000000007;
 
 // -----Global variables-----
 
@@ -44,7 +44,7 @@ typedef std::vector<Fibgroup> Fibvect;
 
 typedef struct {
 	Coord ident; // debug ?
-	unsigned paths;
+	long paths;
 	std::vector<Coord> steps;	
 } Node;
 
@@ -215,7 +215,12 @@ int main(int argc, char **argv) {
 	//prt_lattice(lattice);
 	std::cout << "F(" << F << "," << F << ")  ";
 	std::cout << "Total path count: " << lattice[F][F].paths << std::endl;			
-			
+	
+	prt_node(lattice[45][45]);
+	prt_node(lattice[46][46]);
+	prt_node(lattice[47][47]);
+	
+	
 	return 0;	// only required gdb breakpoint		
 }
 	

@@ -70,7 +70,7 @@ int main(int c,char** p) {
 
   assert(solver<10>().solve()==215846462);
   
-  std::cout << solver<48>().solve() << std::endl;
+  std::cout << solver<46>().solve() << std::endl;
   
   return 0;
 }
