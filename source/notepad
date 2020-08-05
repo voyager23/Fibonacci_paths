@@ -1,3 +1,44 @@
+
+
+// from fibvect_test.cxx
+	for(auto it_step = fibonacci.begin() + 2; it_step != fibonacci.end(); ++it_step) {
+		bool step_found = false;
+		// check for left step
+		dw = test_node.ident[0] - (*it_step)[0];
+		if(dw >= 0) {
+			test_node.steps.push_back({dw, test_node.ident[1]});
+			step_found = true;
+		}
+		
+		// check for down step
+		dh = test_node.ident[1] - (*it_step)[0];
+		if(dh >= 0) {
+			test_node.steps.push_back({test_node.ident[0], dh});
+			step_found = true;
+		}
+			
+		// check for (2) diag. steps
+		if((*it_step)[1] > 0) {
+			dw = test_node.ident[0] - (*it_step)[1];
+			dh = test_node.ident[1] - (*it_step)[2];
+			if((dw >= 0)and(dh >= 0)) {
+				test_node.steps.push_back({-dw, -dh});
+				step_found = true;
+			}		
+			dw = test_node.ident[0] - (*it_step)[2];
+			dh = test_node.ident[1] - (*it_step)[1];
+			if((dw >= 0)and(dh >= 0)) {
+				test_node.steps.push_back({-dw, -dh});
+				step_found = true;
+			}
+		}
+						
+		if(!step_found) break;
+		
+	}
+
+
+
 void construct_fibvect(Fibvect &fv);
 void construct_fibvect(Fibvect &fv) {
 	fv.clear();
