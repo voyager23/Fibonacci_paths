@@ -29,7 +29,7 @@
 #include <vector>
 #include <cmath>
 
-const int F = 10000;
+const int F = 50;
 
 const int W = F+1;
 const int H = F+1;
@@ -94,9 +94,10 @@ void construct_fibvect(Fibvect &fv, const int F) {
 	fv.push_back( {5,3,4 } ); // F(5)
 	// The value of the maximum Fibonnaci is derived from the dimensions of the lattice
 	// Fmax >= sqrt(W*W + H*H)
-	int limit = 0;
-	int current_fibonacci = 0;
-	do {
+
+	int current_fibonacci = (*(fv.end()-1))[0];
+	
+	while(current_fibonacci <= F) {
 		// add non-pythag
 		current_fibonacci = ((*(fv.end()-1))[0] + (*(fv.end()-2))[0]);
 		fv.push_back({current_fibonacci,0,0});
@@ -107,8 +108,7 @@ void construct_fibvect(Fibvect &fv, const int F) {
 		(*(fv.end()-1))[1] = (*(fv.end()-2))[0] - (*(fv.end()-3))[1];
 		(*(fv.end()-1))[2] = (*(fv.end()-3))[0] + (*(fv.end()-3))[1] + (*(fv.end()-3))[2];
 		
-		limit =	(*(fv.end()-1))[1];				
-	} while (limit < MinLeg);
+	}
 	fv.erase(fv.begin(), fv.begin()+2);
 }
 
@@ -128,6 +128,20 @@ int main(int argc, char **argv) {
 	
 	construct_fibvect(fibonacci, F);	
 	prt_fibvect(fibonacci);
+	
+	// from fibonnaci setup a vector of Coords which contains all legal steps for this lattice
+	
+	std::vector<Coord> legal_steps;
+	for(auto it_fib = fibonacci.begin(); it_fib != fibonacci.end(); ++it_fib) {
+		// first value has rect. step
+		legal_steps.push_back( { (*it_fib)[0], 0 } ); // -dw
+		legal_steps.push_back( { 0, (*it_fib)[0] } ); // -dh
+		// if available add 2 diagonal steps
+		if((*it_fib)[1] == 0) continue;
+		legal_steps.push_back( { (*it_fib)[1], (*it_fib)[2] } ); // -dw -dh
+		legal_steps.push_back( { (*it_fib)[2], (*it_fib)[1] } ); // -dh -dw
+	}		
+	std::cout << "legal_steps size: " << legal_steps.size() << std::endl;
 	
 	exit(0);//DEBUG EXIT
 	
