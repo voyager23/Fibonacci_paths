@@ -29,11 +29,11 @@
 #include <vector>
 #include <cmath>
 
-const int F = 50;
+const int F = 46;
 
 const int W = F+1;
 const int H = F+1;
-const int MinLeg = F; // patch code to get triangle legs > 10000
+const int MinLeg = F;
 const long modulus = 1000000007;
 
 // -----Global variables-----
@@ -109,6 +109,7 @@ void construct_fibvect(Fibvect &fv, const int F) {
 		(*(fv.end()-1))[2] = (*(fv.end()-3))[0] + (*(fv.end()-3))[1] + (*(fv.end()-3))[2];
 		
 	}
+	// Remove unused entries
 	fv.erase(fv.begin(), fv.begin()+2);
 }
 
@@ -140,10 +141,11 @@ int main(int argc, char **argv) {
 		if((*it_fib)[1] == 0) continue;
 		legal_steps.push_back( { (*it_fib)[1], (*it_fib)[2] } ); // -dw -dh
 		legal_steps.push_back( { (*it_fib)[2], (*it_fib)[1] } ); // -dh -dw
-	}		
-	std::cout << "legal_steps size: " << legal_steps.size() << std::endl;
+	}
 	
-	exit(0);//DEBUG EXIT
+	std::cout << "F(" << F << "," << F << ")  ";
+		
+	std::cout << "legal_steps size: " << legal_steps.size() << std::endl;
 	
 	// Initialise the lattice axes
 	
@@ -155,7 +157,7 @@ int main(int argc, char **argv) {
 		lattice[0][h].paths = 0;
 		lattice[0][h].steps.clear();
 		lattice[0][h].ident = {0,h};
-		for(auto it_step = fibonacci.begin() + 2; it_step != fibonacci.end(); ++it_step) {
+		for(auto it_step = fibonacci.begin(); it_step != fibonacci.end(); ++it_step) {
 			bool step_found = false;
 			// check for down step
 			dh = lattice[0][h].ident[1] - (*it_step)[0];
@@ -179,8 +181,9 @@ int main(int argc, char **argv) {
 	for(int h = 1; h != H; ++h) {
 		for(int w = 1; w != W; ++w) {
 			lattice[w][h].ident = {w,h};
-			for(auto it_step = fibonacci.begin() + 2; it_step != fibonacci.end(); ++it_step) {
+			for(auto it_step = fibonacci.begin(); it_step != fibonacci.end(); ++it_step) {
 				bool step_found = false;
+				//std::cout << "steps: " << (*it_step)[0] << "," << (*it_step)[1] << ","<< (*it_step)[2] << std::endl;
 				// check for left step
 				dw = w - (*it_step)[0];
 				if(dw >= 0) {
@@ -233,9 +236,9 @@ int main(int argc, char **argv) {
 	std::cout << "F(" << F << "," << F << ")  ";
 	std::cout << "Total path count: " << lattice[F][F].paths << std::endl;			
 	
-	prt_node(lattice[45][45]);
-	prt_node(lattice[46][46]);
-	prt_node(lattice[47][47]);
+	//prt_node(lattice[45][45]);
+	//prt_node(lattice[46][46]);
+	//prt_node(lattice[47][47]);
 	
 	
 	return 0;	// only required gdb breakpoint		
