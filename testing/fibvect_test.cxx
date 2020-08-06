@@ -29,7 +29,7 @@
 #include <vector>
 #include <cmath>
 
-const int F = 47;
+const int F = 10000;
 
 const int W = F+1;
 const int H = F+1;
@@ -58,7 +58,7 @@ bool path_found = false;
 
 void prt_node(Node &n);
 void prt_lattice(std::array<std::array<Node, W>, H> &l);
-void construct_fibvect(Fibvect &fv);
+void construct_fibvect(Fibvect &fv, const int F);
 void prt_fibvect(Fibvect &fv);
 
 // -----Definitions------
@@ -84,7 +84,7 @@ void prt_lattice(std::array<std::array<Node, W>, H> &l) {
 	}
 }
 
-void construct_fibvect(Fibvect &fv) {
+void construct_fibvect(Fibvect &fv, const int F) {
 	fv.clear();
 	fv.push_back( {0,0,0 } ); // F(0)
 	fv.push_back( {1,0,0 } ); // F(1)
@@ -109,6 +109,7 @@ void construct_fibvect(Fibvect &fv) {
 		
 		limit =	(*(fv.end()-1))[1];				
 	} while (limit < MinLeg);
+	fv.erase(fv.begin(), fv.begin()+2);
 }
 
 void prt_fibvect(Fibvect &fv) {
@@ -125,8 +126,10 @@ int main(int argc, char **argv) {
 	int dw,dh;	
 	// the lattice is defined in terms of W and H
 	
-	construct_fibvect(fibonacci);	
+	construct_fibvect(fibonacci, F);	
 	prt_fibvect(fibonacci);
+	
+	exit(0);//DEBUG EXIT
 	
 	// Initialise the lattice axes
 	

@@ -1,7 +1,12 @@
 # Makefile for testing
 
-TARGET =  -o./d_test
-CFLAGS = -ggdb
+TARGET =  -o ../bin/fibvt
 
-all: d_testing.cxx
-	g++ $(CFLAGS) $(TARGET) d_testing.cxx 
+# -mcmodel=medium >2GB of static data
+CFLAGS = -ggdb -Wall -mcmodel=medium
+
+all: fibvect_test.cxx
+	g++ $(CFLAGS) $(TARGET) fibvect_test.cxx
+	
+go:
+	../bin/fibvt
