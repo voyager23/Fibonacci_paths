@@ -33,8 +33,7 @@ const int F = 46;
 
 const int W = F+1;
 const int H = F+1;
-const int MinLeg = F;
-const long modulus = 1000000007;
+const int modulus = 1000000007;
 
 // -----Global variables-----
 
@@ -44,7 +43,7 @@ typedef std::vector<Fibgroup> Fibvect;
 
 typedef struct {
 	Coord ident; // debug ?
-	long paths;
+	int paths;
 	std::vector<Coord> steps;	
 } Node;
 
@@ -136,16 +135,24 @@ int main(int argc, char **argv) {
 	for(auto it_fib = fibonacci.begin(); it_fib != fibonacci.end(); ++it_fib) {
 		// first value has rect. step
 		legal_steps.push_back( { (*it_fib)[0], 0 } ); // -dw
+		
+		//std::cout<<(*it_fib)[0]<<","<<0<<" & ";
 		legal_steps.push_back( { 0, (*it_fib)[0] } ); // -dh
+		//std::cout<<0<<","<<(*it_fib)[0]<<" & ";
+		
 		// if available add 2 diagonal steps
 		if((*it_fib)[1] == 0) continue;
 		legal_steps.push_back( { (*it_fib)[1], (*it_fib)[2] } ); // -dw -dh
+		//std::cout<<(*it_fib)[1]<<","<<(*it_fib)[2]<<" & ";
+		
 		legal_steps.push_back( { (*it_fib)[2], (*it_fib)[1] } ); // -dh -dw
+		//std::cout<<(*it_fib)[2]<<","<<(*it_fib)[1]<<"\n";
 	}
 	
 	std::cout << "F(" << F << "," << F << ")  ";
 		
 	std::cout << "legal_steps size: " << legal_steps.size() << std::endl;
+	
 	
 	// Initialise the lattice axes
 	
