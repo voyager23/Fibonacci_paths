@@ -243,9 +243,9 @@ int main(int argc, char **argv) {
 	std::cout << "F(" << F << "," << F << ")  ";
 	std::cout << "Total path count: " << lattice[F][F].paths << std::endl;			
 	
-	//prt_node(lattice[45][45]);
-	//prt_node(lattice[46][46]);
-	//prt_node(lattice[47][47]);
+	prt_node(lattice[F-2][F-2]);
+	prt_node(lattice[F-1][F-1]);
+	prt_node(lattice[F][F]);
 	
 	
 	return 0;	// only required gdb breakpoint		
