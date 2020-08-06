@@ -1,0 +1,76 @@
+#if(0)
+	// Initialise the lattice axes
+	
+	lattice[0][0].paths = 1;
+	lattice[0][0].ident = {0,0};
+	lattice[0][0].steps.clear();
+	
+	for (auto h = 1; h != H; ++h) {
+		lattice[0][h].paths = 0;
+		lattice[0][h].steps.clear();
+		lattice[0][h].ident = {0,h};
+		for(auto it_step = fibonacci.begin(); it_step != fibonacci.end(); ++it_step) {
+			bool step_found = false;
+			// check for down step
+			dh = lattice[0][h].ident[1] - (*it_step)[0];
+			if(dh >= 0) {
+				lattice[0][h].steps.push_back({0, dh});
+				step_found = true;
+			}
+			if(!step_found) break;
+		}
+		// copy node values to opposite axis
+		lattice[h][0].paths = 0;
+		lattice[h][0].ident = {h,0};
+		lattice[h][0].steps.clear();
+		// copy the vector, swapping the step coords
+		for(auto it = lattice[0][h].steps.begin(); it != lattice[0][h].steps.end(); ++it) 
+			lattice[h][0].steps.push_back({(*it)[1],(*it)[0]});
+	}
+	
+	
+	// starting at node(1,1) compute the values for ident and steps for each node
+	
+	for(int h = 1; h != H; ++h) {
+		for(int w = 1; w != W; ++w) {
+			lattice[w][h].ident = {w,h};
+			for(auto it_step = fibonacci.begin(); it_step != fibonacci.end(); ++it_step) {
+				bool step_found = false;
+				//std::cout << "steps: " << (*it_step)[0] << "," << (*it_step)[1] << ","<< (*it_step)[2] << std::endl;
+				// check for left step
+				dw = w - (*it_step)[0];
+				if(dw >= 0) {
+					lattice[w][h].steps.push_back({dw, h});
+					step_found = true;
+				}
+				
+				// check for down step
+				dh = h - (*it_step)[0];
+				if(dh >= 0) {
+					lattice[w][h].steps.push_back({w, dh});
+					step_found = true;
+				}
+					
+				// check for (2) diag. steps
+				if((*it_step)[1] > 0) {
+					dw = w - (*it_step)[1];
+					dh = h - (*it_step)[2];
+					if((dw >= 0)and(dh >= 0)) {
+						lattice[w][h].steps.push_back({dw, dh});
+						step_found = true;
+					}		
+					dw = w - (*it_step)[2];
+					dh = h - (*it_step)[1];
+					if((dw >= 0)and(dh >= 0)) {
+						lattice[w][h].steps.push_back({dw, dh});
+						step_found = true;
+					}
+				}
+				if(!step_found) break;
+			} // for it_step		
+		} // for w...
+	} // for h...
+	
+	// prt_lattice(lattice); exit(0);
+#endif
+	

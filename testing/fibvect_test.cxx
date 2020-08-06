@@ -47,7 +47,7 @@ typedef struct {
 	std::vector<Coord> steps;	
 } Node;
 
-std::array<std::array<Node,W>,H> lattice;
+std::array<std::array<int,W>,H> lattice;
 std::vector<Coord> rect_step;
 std::vector<Coord> pyth_step;
 Fibvect fibonacci;
@@ -123,8 +123,6 @@ void prt_fibvect(Fibvect &fv) {
 
 int main(int argc, char **argv) {
 	
-	int dw,dh;	
-	// the lattice is defined in terms of W and H
 	
 	construct_fibvect(fibonacci, F);	
 	prt_fibvect(fibonacci);
@@ -136,118 +134,43 @@ int main(int argc, char **argv) {
 		// first value has rect. step
 		legal_steps.push_back( { (*it_fib)[0], 0 } ); // -dw
 		
-		//std::cout<<(*it_fib)[0]<<","<<0<<" & ";
 		legal_steps.push_back( { 0, (*it_fib)[0] } ); // -dh
-		//std::cout<<0<<","<<(*it_fib)[0]<<" & ";
 		
 		// if available add 2 diagonal steps
 		if((*it_fib)[1] == 0) continue;
 		legal_steps.push_back( { (*it_fib)[1], (*it_fib)[2] } ); // -dw -dh
-		//std::cout<<(*it_fib)[1]<<","<<(*it_fib)[2]<<" & ";
 		
 		legal_steps.push_back( { (*it_fib)[2], (*it_fib)[1] } ); // -dh -dw
-		//std::cout<<(*it_fib)[2]<<","<<(*it_fib)[1]<<"\n";
 	}
 	
 	std::cout << "F(" << F << "," << F << ")  ";
 		
 	std::cout << "legal_steps size: " << legal_steps.size() << std::endl;
 	
-	
-	// Initialise the lattice axes
-	
-	lattice[0][0].paths = 1;
-	lattice[0][0].ident = {0,0};
-	lattice[0][0].steps.clear();
-	
-	for (auto h = 1; h != H; ++h) {
-		lattice[0][h].paths = 0;
-		lattice[0][h].steps.clear();
-		lattice[0][h].ident = {0,h};
-		for(auto it_step = fibonacci.begin(); it_step != fibonacci.end(); ++it_step) {
-			bool step_found = false;
-			// check for down step
-			dh = lattice[0][h].ident[1] - (*it_step)[0];
-			if(dh >= 0) {
-				lattice[0][h].steps.push_back({0, dh});
-				step_found = true;
-			}
-			if(!step_found) break;
-		}
-		// copy node values to opposite axis
-		lattice[h][0].paths = 0;
-		lattice[h][0].ident = {h,0};
-		lattice[h][0].steps.clear();
-		// copy the vector, swapping the step coords
-		for(auto it = lattice[0][h].steps.begin(); it != lattice[0][h].steps.end(); ++it) 
-			lattice[h][0].steps.push_back({(*it)[1],(*it)[0]});
-	}
-	
-	// starting at node(1,1) compute the values for ident and steps for each node
-	
-	for(int h = 1; h != H; ++h) {
-		for(int w = 1; w != W; ++w) {
-			lattice[w][h].ident = {w,h};
-			for(auto it_step = fibonacci.begin(); it_step != fibonacci.end(); ++it_step) {
-				bool step_found = false;
-				//std::cout << "steps: " << (*it_step)[0] << "," << (*it_step)[1] << ","<< (*it_step)[2] << std::endl;
-				// check for left step
-				dw = w - (*it_step)[0];
-				if(dw >= 0) {
-					lattice[w][h].steps.push_back({dw, h});
-					step_found = true;
-				}
-				
-				// check for down step
-				dh = h - (*it_step)[0];
-				if(dh >= 0) {
-					lattice[w][h].steps.push_back({w, dh});
-					step_found = true;
-				}
-					
-				// check for (2) diag. steps
-				if((*it_step)[1] > 0) {
-					dw = w - (*it_step)[1];
-					dh = h - (*it_step)[2];
-					if((dw >= 0)and(dh >= 0)) {
-						lattice[w][h].steps.push_back({dw, dh});
-						step_found = true;
-					}		
-					dw = w - (*it_step)[2];
-					dh = h - (*it_step)[1];
-					if((dw >= 0)and(dh >= 0)) {
-						lattice[w][h].steps.push_back({dw, dh});
-						step_found = true;
-					}
-				}
-				if(!step_found) break;
-			} // for it_step		
+
+	// phase 2 scan starting at node(0,0) compute path counts
+	bool root_node = true;
+	for(int h = 0; h != H; ++h) {
+		for(int w = 0; w != W; ++w) {
+			int &node = lattice[w][h];
+			if(root_node) {
+				root_node = false;
+				node = 1;
+			} else {
+				node = 0;
+				for(auto s = legal_steps.begin(); s != legal_steps.end(); ++s) {
+					int dw = w - (*s)[0];
+					int dh = h - (*s)[1];
+					if((dw >= 0)and(dh >= 0))
+					node = (node + lattice[dw][dh]) % modulus;
+				} // for s...
+			} // else			
 		} // for w...
 	} // for h...
 	
-	// prt_lattice(lattice); exit(0);
-	
-	// phase 2 scan starting at node(0,0) compute path counts
-	for(int h = 0; h != H; ++h) {
-		for(int w = 0; w != W; ++w) {
-			Node &node = lattice[w][h];
-			if((w==0)and(h==0)) continue;
-			for(auto s = node.steps.begin(); s != node.steps.end(); ++s) {
-				node.paths += lattice[(*s)[0]][(*s)[1]].paths;
-				node.paths %= modulus;
-			}			
-		}
-	}
-	
 	//prt_lattice(lattice);
 	std::cout << "F(" << F << "," << F << ")  ";
-	std::cout << "Total path count: " << lattice[F][F].paths << std::endl;			
+	std::cout << "Total path count: " << lattice[F][F] << std::endl;			
 	
-	prt_node(lattice[F-2][F-2]);
-	prt_node(lattice[F-1][F-1]);
-	prt_node(lattice[F][F]);
-	
-	
-	return 0;	// only required gdb breakpoint		
 }
 	
