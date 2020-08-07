@@ -39,7 +39,7 @@ bool coord_cmp(Coord l, Coord r) {
 }
 
 // -----Global variables-----
-const int F = 1000;
+const int F = 10000;
 
 const int W = F+1;
 const int H = F+1;
@@ -106,6 +106,6 @@ int main(int argc, char **argv) {
 		} // w
 	} // h
 	
-	std::cout << lattice[F][F] << std::endl;			
+	std::cout << "F("<<F<<","<<F<<") => "<<lattice[F][F] << std::endl;			
 	
 }
