@@ -1,7 +1,7 @@
 # Makefile for source folder
 
-TARGET =  -o ../bin/d_hask
+TARGET =  -o ../bin/path_fib
 CFLAGS = -ggdb
 
-all: d_haskell.cxx
-	g++ $(CFLAGS) $(TARGET) d_haskell.cxx
+all: fib_paths.cxx
+	g++ $(CFLAGS) $(TARGET) fib_paths.cxx

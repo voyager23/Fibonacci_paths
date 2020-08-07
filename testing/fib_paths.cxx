@@ -21,8 +21,6 @@
  * 
  */
 
-
-
 #include <iostream>
 #include <iomanip>
 #include <array>
@@ -30,34 +28,30 @@
 #include <cmath>
 #include <algorithm>
 
-const int F = 10000;
+// -----Declarations-----
+typedef std::array<int, 2> Coord;
+bool coord_cmp(Coord l, Coord r);
+
+// -----Definitions------
+bool coord_cmp(Coord l, Coord r) {
+	// sort by maximum value in each coord
+	return (std::max(l[0],l[1]) < std::max(r[0],r[1]));
+}
+
+// -----Global variables-----
+const int F = 1000;
 
 const int W = F+1;
 const int H = F+1;
 const int modulus = 1000000007;
 
-// -----Declarations-----
-typedef std::array<int, 2> Coord;
-
-bool coord_cmp(Coord l, Coord r);
-
-
-// -----Definitions------
-
-bool coord_cmp(Coord l, Coord r) {
-	return((l[0] + l[1]) < (r[0] + r[1]));
-}
-
-
-
-// -----Global variables-----
-
 std::vector<double> fib = { 1.0, 2.0, 3.0, 5.0, 8.0, 13.0, 21.0, 34.0, 55.0, 89.0, 144.0, 233.0, 
 	377.0, 610.0, 987.0, 1597.0, 2584.0, 4181.0, 6765.0, 10946.0, 17711.0, 28657.0, 46368.0, 75025.0};
 
-
 std::array<std::array<int,W>,H> lattice;
 std::vector<Coord> steps;
+
+// =====================================================================
 
 int main(int argc, char **argv) {
 	
@@ -83,7 +77,8 @@ int main(int argc, char **argv) {
 	for(auto it = steps.begin(); it != steps.end(); ++it) 
 		std::cout << (*it)[0] << "," << (*it)[1] << "   ";
 	std::cout << std::endl;
-#if(0)	
+
+	// counting loops
 	bool root = true;
 	for(auto h = 0; h < H; ++h) {
 		for(auto w = 0; w < W; ++w) {
@@ -92,7 +87,25 @@ int main(int argc, char **argv) {
 				lattice[w][h] = 1;
 			} else {
 				lattice[w][h] = 0;
-				
-#endif	
+				// set iterator to steps
+				// while std::max of step <= F
+				//		if(step valid) add count to lattice
+				//		inc iterator
+				//		if iterator == end break
+				// end while
+				for(auto it_step = steps.begin(); it_step != steps.end(); ++it_step) {
+					if(std::max((*it_step)[0],(*it_step)[1]) > F) break;
+					int dw = w - (*it_step)[0];
+					int dh = h - (*it_step)[1];
+					if((dw >= 0) and (dh >= 0)) {
+						lattice[w][h] += lattice[dw][dh];
+						lattice[w][h] %= modulus;
+					} // if
+				} // it_step
+			} // else
+		} // w
+	} // h
+	
+	std::cout << lattice[F][F] << std::endl;			
 	
 }
